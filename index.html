@@ -1,810 +1,171 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Website-Leak-Analyzer – Wie viele Anfragen verliert deine Website? | GoldenWeb</title>
-<meta name="description" content="Kostenlose Website-Analyse: Erfahre in 60 Sekunden, wie viele Anfragen deine Website verliert.">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--gl:#E2C990;--gm:#C8A96E;--gd:#A07840;--bg:#0A0A0A;--bg2:#141414;--bg3:#1C1C1C;--bg4:#252525;--br:rgba(200,169,110,.15);--br2:rgba(200,169,110,.30);--tx:#F0EAD8;--tx2:#A89880;--tx3:#5E5040;--red:#E05252;--ora:#E09030;--grn:#5EC47A}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);line-height:1.6}
-.hidden{display:none!important}
-.gold{background:linear-gradient(135deg,var(--gl),var(--gm),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,var(--gl),var(--gd));color:#0A0A0A;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none}
-.gbtn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(200,169,110,.35)}
-/* HEADER */
-header{position:fixed;top:0;left:0;right:0;z-index:50;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,10,.93);backdrop-filter:blur(12px);border-bottom:.5px solid var(--br)}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-name{font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.header-cta{padding:8px 18px;border:.5px solid var(--br2);border-radius:8px;font-size:13px;font-weight:600;color:var(--gm);background:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:all .15s}
-.header-cta:hover{background:rgba(200,169,110,.08)}
-/* LANDING */
-#landing{padding-top:72px}
-.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-150px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(200,169,110,.07) 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:.5px solid var(--br2);border-radius:20px;font-size:12px;color:var(--gm);margin-bottom:24px}
-.live-dot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hero h1{font-size:clamp(30px,5vw,60px);font-weight:800;line-height:1.12;margin-bottom:18px;max-width:780px}
-.hero-sub{font-size:clamp(15px,2vw,19px);color:var(--tx2);max-width:520px;margin:0 auto 40px;line-height:1.65}
-.hero-input-wrap{display:flex;gap:10px;max-width:560px;width:100%;margin:0 auto 28px;flex-wrap:wrap;justify-content:center}
-.url-inp{flex:1;min-width:260px;padding:14px 18px;background:var(--bg3);border:.5px solid var(--br2);border-radius:10px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:15px;outline:none;transition:border-color .2s}
-.url-inp:focus{border-color:var(--gm)}
-.url-inp::placeholder{color:var(--tx3)}
-.trust-row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:4px}
-.tbadge{font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:5px}
-/* SECTIONS */
-.sec{padding:80px 24px;max-width:1060px;margin:0 auto}
-.sec-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gm);text-align:center;margin-bottom:10px}
-.sec-h{font-size:clamp(24px,3.5vw,38px);font-weight:700;text-align:center;margin-bottom:14px;line-height:1.2}
-.sec-sub{font-size:15px;color:var(--tx2);text-align:center;max-width:520px;margin:0 auto 48px;line-height:1.65}
-.divider{border:none;border-top:.5px solid var(--br);margin:0 24px}
-/* TESTIMONIALS */
-.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
-.tcard{background:var(--bg2);border:.5px solid var(--br);border-radius:14px;padding:24px;transition:border-color .2s}
-.tcard:hover{border-color:var(--br2)}
-.stars{color:var(--gm);font-size:13px;letter-spacing:2px;margin-bottom:12px}
-.ttext{font-size:14px;color:var(--tx2);line-height:1.75;margin-bottom:16px}
-.tauthor{display:flex;align-items:center;gap:10px}
-.tavatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gl));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--bg);flex-shrink:0}
-.tname{font-size:14px;font-weight:600}
-.trole{font-size:12px;color:var(--tx3)}
-/* HOW IT WORKS */
-.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
-.step-card{background:var(--bg2);border:.5px solid var(--br);border-radius:14px;padding:26px 20px;text-align:center}
-.step-num{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,rgba(226,201,144,.15),rgba(160,120,64,.1));border:.5px solid var(--br2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--gm);margin:0 auto 14px}
-.step-t{font-size:15px;font-weight:700;margin-bottom:7px}
-.step-d{font-size:13px;color:var(--tx2);line-height:1.6}
-/* NEXT STEPS */
-.ns-list{max-width:620px;margin:0 auto}
-.ns-item{display:flex;gap:16px;padding:20px 0;border-bottom:.5px solid var(--br)}
-.ns-item:last-child{border-bottom:none}
-.ns-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gl),var(--gd));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--bg);flex-shrink:0;margin-top:2px}
-.ns-h{font-size:15px;font-weight:700;margin-bottom:3px}
-.ns-d{font-size:13px;color:var(--tx2);line-height:1.6}
-/* FAQ */
-.faq-list{max-width:680px;margin:0 auto}
-.faq-item{border:.5px solid var(--br);border-radius:10px;margin-bottom:8px;overflow:hidden}
-.faq-q{width:100%;padding:16px 18px;background:var(--bg2);border:none;color:var(--tx);font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .15s}
-.faq-q:hover{background:var(--bg3)}
-.faq-icon{font-size:20px;color:var(--gm);flex-shrink:0;transition:transform .2s;line-height:1}
-.faq-a{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s;font-size:13px;color:var(--tx2);line-height:1.75}
-.faq-item.open .faq-a{max-height:300px;padding:0 18px 16px}
-.faq-item.open .faq-icon{transform:rotate(45deg)}
-/* FOOTER */
-footer{padding:28px 40px;border-top:.5px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
-.flinks{display:flex;gap:18px}
-.flinks a{font-size:12px;color:var(--tx3);text-decoration:none}
-.flinks a:hover{color:var(--tx2)}
-.flogo{font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-/* ===== FUNNEL OVERLAY ===== */
-#funnel-ov{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;overflow-y:auto}
-.f-top{padding:18px 24px;display:flex;align-items:center;gap:12px;border-bottom:.5px solid var(--br);position:sticky;top:0;background:var(--bg);z-index:10}
-.f-back{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:20px;padding:4px;line-height:1;flex-shrink:0}
-.f-back:hover{color:var(--tx)}
-.f-prog-track{flex:1;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
-.f-prog-fill{height:100%;background:linear-gradient(90deg,var(--gd),var(--gl));border-radius:2px;transition:width .4s ease}
-.f-step-lbl{font-size:12px;color:var(--tx3);white-space:nowrap;flex-shrink:0}
-.f-close{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:22px;line-height:1;padding:4px;flex-shrink:0}
-.f-close:hover{color:var(--tx)}
-.f-body{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px}
-.f-step{max-width:580px;width:100%;animation:sIn .3s ease}
-@keyframes sIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-.f-qlbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gm);margin-bottom:8px}
-.f-qh{font-size:clamp(20px,4vw,28px);font-weight:700;margin-bottom:6px;line-height:1.3}
-.f-qs{font-size:14px;color:var(--tx2);margin-bottom:24px;line-height:1.6}
-.opts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
-.opt-c{padding:16px 12px;background:var(--bg2);border:.5px solid var(--br);border-radius:12px;cursor:pointer;text-align:center;transition:border-color .15s,color .15s,background .15s;font-size:13px;font-weight:500;color:var(--tx2);display:flex;flex-direction:column;align-items:center;gap:7px}
-.opt-c:hover{border-color:var(--gm);color:var(--tx);background:var(--bg3)}
-.opt-c.sel{border-color:var(--gm);background:rgba(200,169,110,.1);color:var(--gm)}
-.opt-icon{font-size:22px}
-.chk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;margin-bottom:20px}
-.chk-c{padding:13px 14px;background:var(--bg2);border:.5px solid var(--br);border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--tx2);transition:border-color .15s,color .15s,background .15s}
-.chk-c:hover{border-color:var(--gm);color:var(--tx)}
-.chk-c.sel{border-color:var(--gm);background:rgba(200,169,110,.1);color:var(--gm)}
-.chk-box{width:17px;height:17px;border:1.5px solid var(--br2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
-.chk-c.sel .chk-box{background:var(--gm);border-color:var(--gm);color:var(--bg)}
-.scale-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.scale-btn{flex:1;min-width:54px;padding:14px 6px;background:var(--bg2);border:.5px solid var(--br);border-radius:10px;cursor:pointer;text-align:center;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;color:var(--tx2);transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px}
-.scale-btn:hover{border-color:var(--gm);color:var(--tx)}
-.scale-btn.sel{border-color:var(--gm);background:rgba(200,169,110,.1);color:var(--gm)}
-.scale-desc{font-size:10px;font-weight:400;line-height:1.2}
-.inp-f{width:100%;padding:13px 16px;background:var(--bg3);border:.5px solid var(--br2);border-radius:10px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:14px;outline:none;transition:border-color .2s;margin-bottom:10px}
-.inp-f:focus{border-color:var(--gm)}
-.inp-f::placeholder{color:var(--tx3)}
-.f-nav{display:flex;gap:10px;align-items:center;margin-top:4px}
-.f-err{font-size:13px;color:var(--red);margin-top:6px}
-/* ===== LOADING ===== */
-#loading-ov{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
-.ld-logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:36px}
-.ld-h{font-size:21px;font-weight:700;text-align:center;margin-bottom:6px}
-.ld-url{font-size:12px;color:var(--gm);margin-bottom:32px;padding:5px 14px;border:.5px solid var(--br2);border-radius:20px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bars-wrap{width:100%;max-width:480px;display:flex;flex-direction:column;gap:13px}
-.bar-row{display:flex;flex-direction:column;gap:5px}
-.bar-info{display:flex;justify-content:space-between;align-items:center}
-.bar-lbl{font-size:12px;color:var(--tx2)}
-.bar-pct{font-size:12px;font-weight:600;color:var(--tx);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
-.bar-track{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;width:0%;border-radius:4px}
-.ld-dots{margin-top:28px;font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:4px}
-.dot-anim{display:inline-block;animation:dotPulse 1.4s infinite}
-.dot-anim:nth-child(2){animation-delay:.2s}
-.dot-anim:nth-child(3){animation-delay:.4s}
-@keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
-/* ===== RESULTS ===== */
-#results-ov{position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto}
-.res-inner{max-width:680px;margin:0 auto;padding:40px 24px 80px}
-.res-top-logo{text-align:center;margin-bottom:28px;font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-/* score circle */
-.score-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:28px}
-.score-svg{width:140px;height:140px}
-.sc-track{fill:none;stroke:var(--bg4);stroke-width:9}
-.sc-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dasharray 1.5s ease,stroke .5s}
-.sc-num{font-family:'Cairo',sans-serif;font-size:28px;font-weight:800;fill:var(--tx);text-anchor:middle;dominant-baseline:central}
-.sc-lbl{font-family:'Cairo',sans-serif;font-size:10px;fill:var(--tx3);text-anchor:middle}
-.leak-big{font-size:clamp(24px,5vw,38px);font-weight:800;color:var(--red);text-align:center;margin-bottom:4px}
-.leak-sub{font-size:14px;color:var(--tx2);text-align:center;margin-bottom:32px;line-height:1.6}
-/* panels */
-.r-panel{background:var(--bg2);border:.5px solid var(--br);border-radius:14px;overflow:hidden;margin-bottom:16px}
-.r-ph{padding:12px 18px;border-bottom:.5px solid var(--br);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-.r-ph.red{background:rgba(224,82,82,.07);border-bottom-color:rgba(224,82,82,.2);color:var(--red)}
-.r-ph.gold{background:rgba(200,169,110,.07);border-bottom-color:var(--br2);color:var(--gm)}
-.issue-item{padding:15px 18px;border-bottom:.5px solid var(--br);display:flex;gap:12px;align-items:flex-start}
-.issue-item:last-child{border-bottom:none}
-.i-rank{width:24px;height:24px;border-radius:50%;background:rgba(224,82,82,.12);border:.5px solid rgba(224,82,82,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--red);flex-shrink:0;margin-top:1px}
-.i-t{font-size:14px;font-weight:600;margin-bottom:3px}
-.i-d{font-size:13px;color:var(--tx2);line-height:1.65}
-.rec-item{padding:15px 18px;border-bottom:.5px solid var(--br);display:flex;gap:12px;align-items:flex-start}
-.rec-item:last-child{border-bottom:none}
-.rec-ico{width:24px;height:24px;border-radius:50%;background:rgba(200,169,110,.1);border:.5px solid var(--br2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px;color:var(--gm)}
-.rec-t{font-size:14px;font-weight:600;margin-bottom:3px}
-.rec-d{font-size:13px;color:var(--tx2);line-height:1.65}
-.rec-blur{filter:blur(5px);user-select:none;pointer-events:none}
-/* factor mini bars */
-.fmini-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-.fmini-lbl{font-size:12px;color:var(--tx3);width:130px;flex-shrink:0}
-.fmini-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
-.fmini-fill{height:100%;border-radius:3px}
-.fmini-pct{font-size:11px;font-weight:600;width:30px;text-align:right}
-/* CTA panel */
-.cta-panel{background:linear-gradient(140deg,rgba(226,201,144,.08),rgba(160,120,64,.04));border:1.5px solid rgba(200,169,110,.3);border-radius:16px;padding:30px 24px;text-align:center;margin-bottom:16px}
-.cta-h{font-size:20px;font-weight:700;margin-bottom:10px;line-height:1.3}
-.cta-p{font-size:14px;color:var(--tx2);max-width:420px;margin:0 auto 22px;line-height:1.65}
-.email-form-wrap{display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 14px}
-.e-inp{padding:13px 15px;background:var(--bg3);border:.5px solid var(--br2);border-radius:9px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:13px;outline:none;width:100%}
-.e-inp:focus{border-color:var(--gm)}
-.e-inp::placeholder{color:var(--tx3)}
-.cal-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,var(--gl),var(--gd));color:#0A0A0A;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:all .2s;max-width:400px;margin:0 auto}
-.cal-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(200,169,110,.4)}
-.cta-note{font-size:11px;color:var(--tx3);margin-top:10px}
-/* Upsell bar */
-.upsell-bar{background:var(--bg2);border:.5px solid var(--br);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.ub-text{font-size:13px;color:var(--tx2)}
-.ub-text strong{color:var(--tx);font-weight:600}
-
-@media(max-width:640px){
-  header{padding:14px 18px}
-  .hero{padding:60px 20px 50px}
-  .opts-grid{grid-template-columns:1fr 1fr}
-  .chk-grid{grid-template-columns:1fr}
-  .hero-input-wrap{flex-direction:column}
-  .url-inp{min-width:100%;width:100%}
-  footer{flex-direction:column;align-items:flex-start;padding:24px 20px}
-}
-</style>
-</head>
-<body>
-
-<!-- FIXED HEADER -->
-<header>
-  <a href="#" class="logo" onclick="closeFunnel()">
-    <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-      <defs><linearGradient id="hg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E2C990"/><stop offset="50%" stop-color="#C8A96E"/><stop offset="100%" stop-color="#A07840"/></linearGradient></defs>
-      <polygon points="18,2 33,11 33,25 18,34 3,25 3,11" stroke="url(#hg)" stroke-width="2" fill="none"/>
-      <circle cx="18" cy="18" r="5" fill="url(#hg)"/>
-    </svg>
-    <span class="logo-name">GoldenWeb</span>
-  </a>
-  <button class="header-cta" onclick="openFunnel()">Jetzt analysieren</button>
-</header>
-
-<!-- =========== LANDING PAGE =========== -->
-<div id="landing">
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge"><span class="live-dot"></span> Kostenlose Analyse – keine Anmeldung nötig</div>
-    <h1>Wie viele Anfragen verliert<br><span class="gold">deine Website gerade?</span></h1>
-    <p class="hero-sub">Gib deine URL ein und erfahre in 60 Sekunden, wo deine Website Anfragen verliert – und was die 3 größten Bremsen sind.</p>
-    <div class="hero-input-wrap">
-      <input class="url-inp" id="hero-url" type="text" placeholder="https://deine-website.de" autocomplete="off">
-      <button class="gbtn" onclick="startFromHero()">Jetzt analysieren →</button>
-    </div>
-    <div class="trust-row">
-      <span class="tbadge">✓ 100% kostenlos</span>
-      <span class="tbadge">✓ Ergebnis in &lt; 60 Sek.</span>
-      <span class="tbadge">✓ Keine E-Mail nötig</span>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <!-- TESTIMONIALS -->
-  <section class="sec">
-    <p class="sec-tag">Kundenstimmen</p>
-    <h2 class="sec-h">Was unsere Kunden sagen</h2>
-    <p class="sec-sub">Unternehmen, die verstanden haben, warum ihre Website keine Anfragen gebracht hat – und was sich danach verändert hat.</p>
-    <div class="tgrid">
-      <div class="tcard">
-        <div class="stars">★★★★★</div>
-        <p class="ttext">„Vorher hatte unsere Website Besucher, aber kaum Anfragen. Seit der Überarbeitung haben sich unsere monatlichen Anfragen verdreifacht. Das Gespräch davor hat uns sofort gezeigt, wo das Problem lag."</p>
-        <div class="tauthor">
-          <div class="tavatar">TR</div>
-          <div><div class="tname">Thomas R.</div><div class="trole">Elektroinstallateur, München</div></div>
-        </div>
-      </div>
-      <div class="tcard">
-        <div class="stars">★★★★★</div>
-        <p class="ttext">„Ich dachte, wir brauchen nur ein neues Design. GoldenWeb hat mir in 30 Minuten erklärt, warum unsere Website zwar schön, aber nicht anfragefähig war. Genau das war der Gamechanger."</p>
-        <div class="tauthor">
-          <div class="tavatar">MK</div>
-          <div><div class="tname">Melanie K.</div><div class="trole">Unternehmensberaterin, Hamburg</div></div>
-        </div>
-      </div>
-      <div class="tcard">
-        <div class="stars">★★★★★</div>
-        <p class="ttext">„Die Analyse hat uns schockiert – 65% unserer Besucher haben die Seite verlassen, ohne irgendetwas zu tun. Innerhalb von 6 Wochen haben wir das auf 30% gedrückt."</p>
-        <div class="tauthor">
-          <div class="tavatar">JM</div>
-          <div><div class="tname">Jens M.</div><div class="trole">Steuerberater, Berlin</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <!-- HOW IT WORKS -->
-  <section class="sec">
-    <p class="sec-tag">So funktioniert es</p>
-    <h2 class="sec-h">In 3 Schritten zu deiner Diagnose</h2>
-    <p class="sec-sub">Keine technischen Vorkenntnisse nötig. Kein Zugriff auf dein Backend. Nur deine URL und 4 kurze Fragen.</p>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-t">URL eingeben</div>
-        <p class="step-d">Gib die Adresse deiner Website ein. Wir analysieren sie automatisch auf technische Leistung und Conversion-Faktoren.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-t">4 Fragen beantworten</div>
-        <p class="step-d">Beantworte 4 kurze Fragen zu deiner Website. Das dauert unter 60 Sekunden und schärft die Analyse erheblich.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-t">Ergebnis erhalten</div>
-        <p class="step-d">Du siehst sofort deinen Leak-Score, die größten Bremsen und konkrete Hinweise, was bei dir den meisten Unterschied machen würde.</p>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:32px">
-      <button class="gbtn" onclick="openFunnel()" style="font-size:15px;padding:15px 32px">Jetzt kostenlos analysieren →</button>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <!-- NEXT STEPS -->
-  <section class="sec">
-    <p class="sec-tag">Die nächsten Schritte</p>
-    <h2 class="sec-h">Vom ersten Ergebnis zur echten Lösung</h2>
-    <p class="sec-sub">Was passiert nach der Analyse – und wie sieht eine Zusammenarbeit mit GoldenWeb aus.</p>
-    <div class="ns-list">
-      <div class="ns-item">
-        <div class="ns-num">1</div>
-        <div><div class="ns-h">Analyse starten</div><p class="ns-d">Du gibst deine URL ein und beantwortest 4 kurze Fragen. In weniger als 60 Sekunden siehst du deinen Leak-Score und die größten Conversion-Bremsen.</p></div>
-      </div>
-      <div class="ns-item">
-        <div class="ns-num">2</div>
-        <div><div class="ns-h">Kostenloses Erstgespräch buchen</div><p class="ns-d">Du buchst dir 30 Minuten mit uns. Wir schauen uns gemeinsam deine Website an und zeigen dir konkret, welche 3 Änderungen bei dir die meisten Anfragen bringen würden.</p></div>
-      </div>
-      <div class="ns-item">
-        <div class="ns-num">3</div>
-        <div><div class="ns-h">Maßgeschneiderte Lösung</div><p class="ns-d">Wir entwickeln eine Website, die nicht nur gut aussieht, sondern aktiv Anfragen generiert – durch klare Führung, Vertrauen und starke Conversion-Elemente.</p></div>
-      </div>
-      <div class="ns-item">
-        <div class="ns-num">4</div>
-        <div><div class="ns-h">Mehr qualifizierte Anfragen</div><p class="ns-d">Deine neue Website arbeitet für dich – und bringt regelmäßig neue Anfragen, ohne dass du mehr Werbebudget ausgeben musst.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <!-- FAQ -->
-  <section class="sec">
-    <p class="sec-tag">Häufige Fragen</p>
-    <h2 class="sec-h">Was du vielleicht noch wissen willst</h2>
-    <p class="sec-sub">Echte Fragen, ehrliche Antworten.</p>
-    <div class="faq-list">
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)"><span>Ist die Analyse wirklich kostenlos?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a">Ja, vollständig. Keine versteckten Kosten, kein Abo, keine Kreditkarte. Du bekommst sofort eine ehrliche Einschätzung deiner Website – ohne Pflicht zu einem Folgegespräch.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)"><span>Woher kommen die Analyseergebnisse?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a">Das Tool kombiniert echte technische Messwerte (Ladezeit, Mobile-Performance via Google PageSpeed) mit deiner Selbsteinschätzung zu den wichtigsten Conversion-Faktoren. Das Ergebnis ist kein generischer Score – es basiert auf deinen konkreten Angaben und gibt dir einen realistischen Überblick, wo deine Website Anfragen verliert.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)"><span>Braucht ihr Zugriff auf meine Website?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a">Nein. Das Tool analysiert deine Website von außen – genau so, wie ein potenzieller Kunde sie sieht. Kein Login, kein Backend-Zugang, keine technischen Informationen nötig.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)"><span>Ich habe wenig Besucher – macht die Analyse trotzdem Sinn?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a">Gerade dann. Eine Website, die schlecht konvertiert, verliert den Großteil ihres Potenzials – egal ob 200 oder 10.000 Besucher im Monat. Die Grundursachen sind meistens dieselben: fehlender CTA, kein Vertrauen, unklares Angebot.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)"><span>Was passiert nach der Analyse?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a">Du siehst sofort dein Ergebnis und die größten Schwachstellen. Wenn du wissen möchtest, welche 3 konkreten Änderungen bei dir den größten Unterschied machen, kannst du ein kostenloses Erstgespräch buchen. Kein Verkaufsgespräch – eine echte Diagnose.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)"><span>Was bietet ihr im Gespräch an?</span><span class="faq-icon">+</span></button>
-        <div class="faq-a">Wir schauen uns gemeinsam deine Website an und zeigen dir konkret, welche Hebel bei dir die meisten Anfragen bringen würden. Danach entscheidest du selbst, ob und wie wir zusammenarbeiten. Kein Druck, kein Standardpitch.</div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider">
-  <footer>
-    <div class="flinks">
-      <a href="https://goldenweb.info/datenschutz" target="_blank">Datenschutz</a>
-      <a href="https://goldenweb.info/impressum" target="_blank">Impressum</a>
-      <a href="https://goldenweb.info" target="_blank">goldenweb.info</a>
-    </div>
-    <span class="flogo">GoldenWeb</span>
-  </footer>
-</div>
-
-<!-- =========== FUNNEL OVERLAY =========== -->
-<div id="funnel-ov" class="hidden">
-  <div class="f-top">
-    <button class="f-back" id="f-back-btn" onclick="funnelBack()">←</button>
-    <div class="f-prog-track"><div class="f-prog-fill" id="f-prog" style="width:0%"></div></div>
-    <span class="f-step-lbl" id="f-step-lbl">Schritt 1 von 5</span>
-    <button class="f-close" onclick="closeFunnel()">✕</button>
-  </div>
-  <div class="f-body">
-    <div class="f-step" id="f-step-content"></div>
-  </div>
-</div>
-
-<!-- =========== LOADING OVERLAY =========== -->
-<div id="loading-ov" class="hidden">
-  <div class="ld-logo">GoldenWeb</div>
-  <h2 class="ld-h">Deine Website wird analysiert…</h2>
-  <div class="ld-url" id="ld-url"></div>
-  <div class="bars-wrap" id="bars-wrap"></div>
-  <div class="ld-dots">Conversion-Faktoren werden berechnet <span class="dot-anim">●</span><span class="dot-anim">●</span><span class="dot-anim">●</span></div>
-</div>
-
-<!-- =========== RESULTS OVERLAY =========== -->
-<div id="results-ov" class="hidden">
-  <div class="res-inner" id="results-content"></div>
-</div>
-
 <script>
-const S = { url:'', branche:'', anfragen:'', alter:'', psData:null, psDone:false, step:0 };
-const STEPS = 4;
-let psPromise = null;
 
-/* -------- PAGESPEED -------- */
-function fetchPS(url) {
-  const api = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=' + encodeURIComponent(url) + '&strategy=mobile';
-  const ctrl = new AbortController();
-  setTimeout(() => ctrl.abort(), 20000);
-  psPromise = fetch(api, { signal: ctrl.signal })
-    .then(r => r.json())
-    .then(d => { S.psData = { perf: d.lighthouseResult?.categories?.performance?.score ?? 0.5 }; })
-    .catch(() => { S.psData = { perf: 0.5 }; })
-    .finally(() => { S.psDone = true; });
+const S={url:'',branche:'',anfragen:'',sichtbarkeit:'',alter:'',psData:null,psDone:false,step:0};
+const STEPS=5;
+
+function fetchPS(url){
+  const api='https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url='+encodeURIComponent(url)+'&strategy=mobile';
+  const ctrl=new AbortController();
+  setTimeout(()=>ctrl.abort(),22000);
+  fetch(api,{signal:ctrl.signal})
+    .then(r=>r.json())
+    .then(d=>{
+      const lr=d.lighthouseResult;
+      S.psData={
+        perf:lr?.categories?.performance?.score??0.5,
+        seo:lr?.categories?.seo?.score??0.5,
+        hasMeta:lr?.audits?.['meta-description']?.score===1,
+        hasTitle:lr?.audits?.['document-title']?.score===1,
+        crawlable:lr?.audits?.['is-crawlable']?.score===1,
+        hasSchema:lr?.audits?.['structured-data']?.score===1,
+        viewport:lr?.audits?.['viewport']?.score===1,
+      };
+    })
+    .catch(()=>{S.psData={perf:.5,seo:.5,hasMeta:null,hasTitle:null,crawlable:null,hasSchema:null,viewport:null};})
+    .finally(()=>{S.psDone=true;});
 }
 
-function toggleFaq(btn) {
-  const item = btn.closest('.faq-item');
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
-
-
-
-
-/* -------- SCORING -------- */
-function calcScore() {
-  const perf = S.psData?.perf ?? 0.5;
-  const hasCta = S.elemente.includes('cta');
-  const trustCnt = ['bewertungen','referenzen','zertifikate'].filter(e => S.elemente.includes(e)).length;
-  const hasPhone = S.elemente.includes('telefon');
-  const hasEmail = S.elemente.includes('emailkontakt');
-  const agePen = S.alter === 'alt5' ? 8 : S.alter === 'alt3' ? 3 : 0;
-  const perfPts = Math.round(perf * 25);
-  const ctaPts = hasCta ? 20 : Math.round((S.klarheit / 5) * 10);
-  const trustPts = Math.min(18, trustCnt * 6);
-  const klarPts = Math.round((S.klarheit / 5) * 17);
-  const contPts = hasPhone ? 12 : hasEmail ? 7 : 3;
-  const total = Math.max(5, Math.min(100, perfPts + ctaPts + trustPts + klarPts + contPts - agePen));
-  const factors = {
-    perf: Math.round(perf * 100),
-    mobile: Math.round(perf * 100),
-    cta: hasCta ? 90 : Math.round((S.klarheit / 5) * 55),
-    vertrauen: Math.min(100, Math.round(trustCnt / 3 * 100)),
-    klarheit: Math.round((S.klarheit / 5) * 100),
-    kontakt: hasPhone ? 90 : hasEmail ? 60 : 25,
-    conversion: total
+function calcScore(){
+  const perf=S.psData?.perf??0.5,seo=S.psData?.seo??0.5;
+  const perfPts=Math.round(perf*20),seoPts=Math.round(seo*18);
+  const anfrMap={'0':0,'1-5':14,'5-10':28,'10-20':40,'20-50':52,'50+':62};
+  const anfrPts=anfrMap[S.anfragen]??15;
+  const sichtMap={seite1:18,seite2:10,kaum:3,weiss:6};
+  const sichtPts=sichtMap[S.sichtbarkeit]??6;
+  const agePen=S.alter==='alt5'?10:S.alter==='alt3'?4:0;
+  const total=Math.max(5,Math.min(95,perfPts+seoPts+Math.round(anfrPts*.62)+sichtPts-agePen));
+  const factors={
+    ladezeit:Math.round(perf*100),
+    mobil:Math.round(perf*100),
+    seo:Math.round(seo*100),
+    sichtbarkeit:S.sichtbarkeit==='seite1'?95:S.sichtbarkeit==='seite2'?55:S.sichtbarkeit==='kaum'?15:35,
+    anfragen:Math.min(100,Math.round(anfrPts*1.6)),
+    potenzial:total
   };
-  let leakMin, leakMax;
-  if (total >= 80) { leakMin = 10; leakMax = 25; }
-  else if (total >= 65) { leakMin = 25; leakMax = 42; }
-  else if (total >= 50) { leakMin = 42; leakMax = 60; }
-  else if (total >= 35) { leakMin = 60; leakMax = 75; }
-  else { leakMin = 75; leakMax = 88; }
-  return { total, factors, leakMin, leakMax };
+  let leakMin,leakMax;
+  if(total>=78){leakMin=10;leakMax=28;}
+  else if(total>=62){leakMin=28;leakMax=45;}
+  else if(total>=46){leakMin=45;leakMax=62;}
+  else if(total>=30){leakMin=62;leakMax=76;}
+  else{leakMin=76;leakMax=90;}
+  return{total,factors,leakMin,leakMax};
 }
 
-function getIssues(factors) {
-  const all = [
-    { key:'perf', threshold:60, title:'Ladezeit & Mobile-Performance zu langsam', desc:'Viele Interessenten öffnen deine Website auf dem Smartphone. Wenn die Seite zu lange lädt oder ruckelt, bricht ein großer Teil ab – bevor sie überhaupt verstehen, was du anbietest.' },
-    { key:'cta', threshold:55, title:'Kein klarer nächster Schritt sichtbar', desc:'Besucher wissen nicht, was sie tun sollen. Ohne einen klaren Call-to-Action verlassen die meisten die Seite passiv – auch wenn grundsätzliches Interesse vorhanden wäre.' },
-    { key:'vertrauen', threshold:50, title:'Zu wenig Vertrauen auf einen Blick', desc:'Neue Besucher kennen dich noch nicht. Ohne sichtbare Bewertungen, Referenzen oder Vertrauenssignale entsteht unbewusst Zweifel – und Zweifel kostet Anfragen.' },
-    { key:'klarheit', threshold:55, title:'Angebot nicht klar genug erklärt', desc:'Wenn Besucher in den ersten Sekunden nicht verstehen, was du anbietest, wem du hilfst und warum sie anfragen sollen, springen sie ab – ohne jemals Kontakt aufzunehmen.' },
-    { key:'kontakt', threshold:50, title:'Kontaktweg nicht prominent sichtbar', desc:'Ein Interessent, der bereit ist anzufragen, braucht einen direkten Weg. Wenn Telefonnummer oder Kontaktmöglichkeit nicht sofort sichtbar sind, geht die Anfrage an den Wettbewerb.' },
-  ];
-  return all.filter(i => factors[i.key] < i.threshold).slice(0,3);
+function getIssues(factors){
+  const issues=[];
+  if(factors.ladezeit<60)issues.push({title:'Deine Website l\u00e4dt zu langsam',desc:'Viele Interessenten schauen sich deine Website auf dem Handy an. Wenn sie zu lange braucht, klicken die meisten einfach weg \u2013 bevor sie gelesen haben, was du anbietest.'});
+  if(S.anfragen==='0')issues.push({title:'Die Website bringt aktuell keine Anfragen rein',desc:'Deine Seite hat Besucher, aber nichts auf ihr gibt ihnen einen Grund, dich zu kontaktieren. Das ist kein Pech \u2013 das ist ein l\u00f6sbares Problem.'});
+  else if(S.anfragen==='1-5')issues.push({title:'Kaum Anfragen f\u00fcr dein Potenzial',desc:'Bei 1\u20135 Anfragen im Monat geht ein Gro\u00dfteil der Besucher ohne Reaktion. Das passiert, wenn der Weg zur Kontaktaufnahme nicht klar genug ist oder das Vertrauen fehlt.'});
+  if(factors.seo<55)issues.push({title:'Deine Website ist bei Google kaum sichtbar',desc:'Wenn Interessenten bei Google nach deiner Leistung suchen, taucht deine Seite nicht auf \u2013 oder erst weit hinten. Das bedeutet: Neukunden, die aktiv suchen, landen bei der Konkurrenz.'});
+  if(S.sichtbarkeit==='kaum'||S.sichtbarkeit==='weiss')issues.push({title:'Dein Betrieb wird online nicht gut gefunden',desc:'Wer heute einen Handwerker oder Dienstleister sucht, googelt. Wenn du dabei nicht auftauchst, verlierst du Kunden, bevor du \u00fcberhaupt wei\u00dft, dass sie gesucht haben.'});
+  if(S.alter==='alt5')issues.push({title:'Dein Webauftritt wirkt nicht mehr zeitgem\u00e4\u00df',desc:'Eine \u00fcber 5 Jahre alte Website sendet ein unbewusstes Signal: Stillstand. Neue Kunden schauen, ob ein Betrieb modern aufgestellt ist \u2013 bevor sie anrufen.'});
+  else if(S.alter==='alt3')issues.push({title:'Deine Website entspricht nicht mehr dem heutigen Standard',desc:'Was vor 3\u20135 Jahren gut aussah, wirkt heute oft un\u00fcbersichtlich und nicht vertrauensw\u00fcrdig.'});
+  if(!issues.length)issues.push({title:'Noch ungenutztes Potenzial',desc:'Deine Website ist solide aufgestellt \u2013 aber selbst gute Seiten verlieren Anfragen durch kleine Stellschrauben bei Vertrauen, Struktur und Nutzerf\u00fchrung.'});
+  return issues.slice(0,3);
 }
 
-function getScoreColor(s) {
-  return s >= 68 ? '#5EC47A' : s >= 42 ? '#E09030' : '#E05252';
+function getScoreColor(s){return s>=68?'#5EC47A':s>=42?'#E09030':'#E05252';}
+
+function openFunnel(preUrl){S.step=0;if(preUrl)S.url=preUrl;document.getElementById('funnel-ov').classList.remove('hidden');document.getElementById('landing').style.display='none';renderStep();}
+function closeFunnel(){document.getElementById('funnel-ov').classList.add('hidden');document.getElementById('landing').style.display='';}
+function startFromHero(){const v=document.getElementById('hero-url').value.trim();if(v)S.url=v.startsWith('http')?v:'https://'+v;openFunnel(S.url);}
+function funnelBack(){if(S.step>0){S.step--;renderStep();}else closeFunnel();}
+function updateProgress(){const pct=Math.round((S.step/STEPS)*100);document.getElementById('f-prog').style.width=pct+'%';document.getElementById('f-step-lbl').textContent='Schritt '+(S.step+1)+' von '+STEPS;document.getElementById('f-back-btn').style.opacity=S.step===0?'0.4':'1';}
+function renderStep(){updateProgress();const c=document.getElementById('f-step-content');if(S.step===0)c.innerHTML=stepUrl();else if(S.step===1)c.innerHTML=stepBranche();else if(S.step===2)c.innerHTML=stepAnfragen();else if(S.step===3)c.innerHTML=stepSichtbarkeit();else if(S.step===4)c.innerHTML=stepAlter();c.style.animation='none';c.offsetHeight;c.style.animation='';}
+
+function stepUrl(){return '<p class="f-qlbl">Schritt 1 von 5</p><h2 class="f-qh">Welche Website soll analysiert werden?</h2><p class="f-qs">Einfach die Adresse eingeben \u2013 wir schauen uns technische Leistung und Google-Sichtbarkeit an.</p><input class="inp-f" id="url-inp" type="text" placeholder="https://deine-website.de" value="'+S.url+'" autocomplete="off" onkeydown="if(event.key===\'Enter\')submitUrl()"><p class="f-err hidden" id="url-err">Bitte gib eine g\u00fcltige Webadresse ein.</p><div class="f-nav"><button class="gbtn" onclick="submitUrl()" style="width:100%">Weiter \u2192</button></div>';}
+function submitUrl(){let v=document.getElementById('url-inp').value.trim();if(!v){document.getElementById('url-err').classList.remove('hidden');return;}if(!v.startsWith('http'))v='https://'+v;S.url=v;document.getElementById('url-err').classList.add('hidden');fetchPS(v);S.step=1;renderStep();}
+
+function stepBranche(){
+  const opts=[['Handwerk & Bau','handwerk'],['Gesundheit & Pflege','gesundheit'],['Beratung & Coaching','beratung'],['IT & Digitales','it'],['Gastronomie','gastro'],['Sonstiges','sonstiges']];
+  return '<p class="f-qlbl">Schritt 2 von 5</p><h2 class="f-qh">In welchem Bereich bist du t\u00e4tig?</h2><p class="f-qs">Damit k\u00f6nnen wir die Ergebnisse besser einordnen.</p><div class="opts-grid">'+opts.map(([lbl,val])=>'<div class="opt-c'+(S.branche===val?' sel':'')+'" onclick="selectBranche(\''+val+'\')"><span>'+lbl+'</span></div>').join('')+'</div>';
 }
+function selectBranche(v){S.branche=v;S.step=2;renderStep();}
 
-function getBarGradient(pct) {
-  if (pct >= 68) return 'linear-gradient(90deg,#2E7A44,#5EC47A)';
-  if (pct >= 42) return 'linear-gradient(90deg,#8B5A10,#E09030)';
-  return 'linear-gradient(90deg,#7A1A1A,#E05252)';
+function stepAnfragen(){
+  const opts=[['0','Keine','Ich bekomme keine Anfragen \u00fcber die Website'],['1-5','1 \u2013 5','Vereinzelt, aber selten'],['5-10','5 \u2013 10','Manchmal, ausbauf\u00e4hig'],['10-20','10 \u2013 20','Regelm\u00e4\u00dfig'],['20-50','20 \u2013 50','Gut, aber mehr w\u00e4re besser'],['50+','50+','Sehr viele, l\u00e4uft gut']];
+  return '<p class="f-qlbl">Schritt 3 von 5</p><h2 class="f-qh">Wie viele Anfragen kommen monatlich \u00fcber deine Website?</h2><p class="f-qs">Gemeint sind Anrufe, Nachrichten oder Kontaktformulare direkt \u00fcber deine Website.</p><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+opts.map(([val,num,desc])=>'<div class="opt-c'+(S.anfragen===val?' sel':'')+'" onclick="selectAnfragen(\''+val+'\')" style="text-align:left;flex-direction:row;gap:12px;padding:14px 16px"><span style="font-size:17px;font-weight:800;min-width:44px;color:var(--gm)">'+num+'</span><span style="font-size:12px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
 }
+function selectAnfragen(v){S.anfragen=v;S.step=3;renderStep();}
 
-/* -------- FUNNEL NAVIGATION -------- */
-function openFunnel(preUrl) {
-  S.step = 0;
-  if (preUrl) S.url = preUrl;
-  document.getElementById('funnel-ov').classList.remove('hidden');
-  document.getElementById('landing').style.display = 'none';
-  renderStep();
+function stepSichtbarkeit(){
+  const opts=[['seite1','Ja, auf Seite 1','Ich bin gut zu finden'],['seite2','Auf Seite 2\u20133','Man findet mich, aber selten'],['kaum','Kaum sichtbar','Ich tauche kaum auf'],['weiss','Wei\u00df ich nicht','Ich habe das nie gepr\u00fcft']];
+  return '<p class="f-qlbl">Schritt 4 von 5</p><h2 class="f-qh">Wenn jemand bei Google nach deiner Leistung sucht \u2013 erscheinst du?</h2><p class="f-qs">Z.B. \u201eElektriker M\u00fcnchen\u201c oder \u201eSteuerberater Hamburg\u201c \u2013 wie sichtbar bist du dabei?</p><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+opts.map(([val,num,desc])=>'<div class="opt-c'+(S.sichtbarkeit===val?' sel':'')+'" onclick="selectSichtbarkeit(\''+val+'\')" style="text-align:left;flex-direction:row;gap:12px;padding:14px 16px"><span style="font-size:14px;font-weight:700;min-width:110px;color:var(--gm)">'+num+'</span><span style="font-size:12px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
 }
+function selectSichtbarkeit(v){S.sichtbarkeit=v;S.step=4;renderStep();}
 
-function closeFunnel() {
-  document.getElementById('funnel-ov').classList.add('hidden');
-  document.getElementById('landing').style.display = '';
+function stepAlter(){
+  const opts=[['Weniger als 1 Jahr','jung'],['1 \u2013 3 Jahre','mittel'],['3 \u2013 5 Jahre','alt3'],['\u00c4lter als 5 Jahre','alt5']];
+  return '<p class="f-qlbl">Schritt 5 von 5</p><h2 class="f-qh">Wie alt ist deine aktuelle Website?</h2><p class="f-qs">\u00c4ltere Websites entsprechen oft nicht mehr dem heutigen Standard \u2013 das beeinflusst Ladezeit, Darstellung und Google-Ranking.</p><div class="opts-grid">'+opts.map(([lbl,val])=>'<div class="opt-c'+(S.alter===val?' sel':'')+'" onclick="selectAlter(\''+val+'\')" style="padding:18px 14px"><span style="font-size:15px;font-weight:600">'+lbl+'</span></div>').join('')+'</div>';
 }
+function selectAlter(v){S.alter=v;startLoading();}
 
-function startFromHero() {
-  const v = document.getElementById('hero-url').value.trim();
-  if (v) { S.url = v.startsWith('http') ? v : 'https://' + v; }
-  openFunnel(S.url);
-}
-
-function funnelBack() {
-  if (S.step > 0) { S.step--; renderStep(); }
-  else closeFunnel();
-}
-
-function updateProgress() {
-  const pct = Math.round((S.step / STEPS) * 100);
-  document.getElementById('f-prog').style.width = pct + '%';
-  document.getElementById('f-step-lbl').textContent = 'Schritt ' + (S.step + 1) + ' von ' + STEPS;
-  document.getElementById('f-back-btn').style.opacity = S.step === 0 ? '0.4' : '1';
-}
-
-function renderStep() {
-  updateProgress();
-  const c = document.getElementById('f-step-content');
-  if (S.step === 0) { c.innerHTML = stepUrl(); }
-  else if (S.step === 1) { c.innerHTML = stepBranche(); }
-  else if (S.step === 2) { c.innerHTML = stepElemente(); }
-  else if (S.step === 3) { c.innerHTML = stepKlarheit(); }
-  else if (S.step === 4) { c.innerHTML = stepAlter(); }
-  c.style.animation = 'none'; c.offsetHeight; c.style.animation = '';
-}
-
-function stepUrl() {
-  return '<p class="f-qlbl">Schritt 1 – Website</p>' +
-    '<h2 class="f-qh">Welche Website soll analysiert werden?</h2>' +
-    '<p class="f-qs">Gib die URL deiner Website ein. Wir messen automatisch Ladezeit und Mobile-Performance.</p>' +
-    '<input class="inp-f" id="url-inp" type="text" placeholder="https://deine-website.de" value="' + S.url + '" autocomplete="off">' +
-    '<p class="f-err hidden" id="url-err">Bitte gib eine gültige URL ein.</p>' +
-    '<div class="f-nav"><button class="gbtn" onclick="submitUrl()" style="width:100%">Weiter →</button></div>';
-}
-
-function submitUrl() {
-  let v = document.getElementById('url-inp').value.trim();
-  if (!v) { document.getElementById('url-err').classList.remove('hidden'); return; }
-  if (!v.startsWith('http')) v = 'https://' + v;
-  S.url = v;
-  document.getElementById('url-err').classList.add('hidden');
-  fetchPS(v);
-  S.step = 1; renderStep();
-}
-
-function stepBranche() {
-  const opts = [
-    ['🔨','Handwerk & Bau','handwerk'],
-    ['🏥','Gesundheit & Pflege','gesundheit'],
-    ['💡','Beratung & Coaching','beratung'],
-    ['💻','IT & Digitales','it'],
-    ['🍽','Gastronomie','gastro'],
-    ['📋','Sonstiges','sonstiges']
-  ];
-  const cards = opts.map(([ic, lbl, val]) =>
-    '<div class="opt-c' + (S.branche === val ? ' sel' : '') + '" onclick="selectBranche(\'' + val + '\')">' +
-    '<span class="opt-icon">' + ic + '</span><span>' + lbl + '</span></div>'
-  ).join('');
-  return '<p class="f-qlbl">Schritt 2 – Branche</p>' +
-    '<h2 class="f-qh">In welcher Branche bist du tätig?</h2>' +
-    '<p class="f-qs">Das hilft uns, die Ergebnisse richtig einzuordnen.</p>' +
-    '<div class="opts-grid">' + cards + '</div>';
-}
-
-function selectBranche(v) { S.branche = v; S.step = 2; renderStep(); }
-
-function stepElemente() {
-  const opts = [
-    ['cta','CTA-Button (z.B. „Jetzt anfragen")'],
-    ['bewertungen','Kundenbewertungen sichtbar'],
-    ['referenzen','Referenzen oder Portfolio'],
-    ['telefon','Telefonnummer sichtbar'],
-    ['emailkontakt','E-Mail oder Kontaktformular'],
-    ['zertifikate','Zertifikate oder Auszeichnungen'],
-    ['ueberuns','Über-uns-Bereich'],
-    ['nichts','Keines davon']
-  ];
-  const cards = opts.map(([val, lbl]) => {
-    const sel = S.elemente.includes(val);
-    return '<div class="chk-c' + (sel ? ' sel' : '') + '" onclick="toggleEl(\'' + val + '\')">' +
-      '<div class="chk-box">' + (sel ? '✓' : '') + '</div><span>' + lbl + '</span></div>';
-  }).join('');
-  return '<p class="f-qlbl">Schritt 3 – Elemente</p>' +
-    '<h2 class="f-qh">Was ist auf deiner Website sichtbar?</h2>' +
-    '<p class="f-qs">Wähle alles, was aktuell auf deiner Website vorhanden ist. Mehrfachauswahl möglich.</p>' +
-    '<div class="chk-grid">' + cards + '</div>' +
-    '<div class="f-nav"><button class="gbtn" onclick="submitElemente()" style="width:100%">Weiter →</button></div>';
-}
-
-function toggleEl(v) {
-  if (v === 'nichts') { S.elemente = S.elemente.includes('nichts') ? [] : ['nichts']; }
-  else {
-    S.elemente = S.elemente.filter(e => e !== 'nichts');
-    if (S.elemente.includes(v)) S.elemente = S.elemente.filter(e => e !== v);
-    else S.elemente.push(v);
-  }
-  renderStep();
-}
-
-function submitElemente() { S.step = 3; renderStep(); }
-
-function stepKlarheit() {
-  const labels = ['','Kaum erklärt','Schwer verständlich','Mittelmäßig','Gut erklärt','Sehr klar'];
-  const btns = [1,2,3,4,5].map(n =>
-    '<div class="scale-btn' + (S.klarheit === n ? ' sel' : '') + '" onclick="selectKlarheit(' + n + ')">' +
-    '<span style="font-size:20px;">' + n + '</span>' +
-    '<span class="scale-desc">' + labels[n] + '</span></div>'
-  ).join('');
-  return '<p class="f-qlbl">Schritt 4 – Angebotsklarheit</p>' +
-    '<h2 class="f-qh">Wie klar ist dein Angebot erklärt?</h2>' +
-    '<p class="f-qs">Wie würdest du selbst einschätzen: Versteht ein neuer Besucher sofort, was du anbietest und für wen?</p>' +
-    '<div class="scale-row">' + btns + '</div>';
-}
-
-function selectKlarheit(n) { S.klarheit = n; S.step = 4; renderStep(); }
-
-function stepAlter() {
-  const opts = [
-    ['Weniger als 1 Jahr','<1 Jahr','jung'],
-    ['1 – 3 Jahre','1–3 Jahre','mittel'],
-    ['3 – 5 Jahre','3–5 Jahre','alt3'],
-    ['Älter als 5 Jahre','> 5 Jahre','alt5']
-  ];
-  const cards = opts.map(([lbl, sub, val]) =>
-    '<div class="opt-c' + (S.alter === val ? ' sel' : '') + '" onclick="selectAlter(\'' + val + '\')" style="padding:18px 14px">' +
-    '<span style="font-size:15px;font-weight:600;">' + lbl + '</span>' +
-    '<span style="font-size:11px;color:var(--tx3)">' + sub + '</span></div>'
-  ).join('');
-  return '<p class="f-qlbl">Schritt 5 – Website-Alter</p>' +
-    '<h2 class="f-qh">Wie alt ist deine aktuelle Website?</h2>' +
-    '<p class="f-qs">Ältere Websites haben oft strukturelle Nachteile bei Mobile-Darstellung und Nutzerführung.</p>' +
-    '<div class="opts-grid">' + cards + '</div>';
-}
-
-function selectAlter(v) { S.alter = v; startLoading(); }
-
-/* -------- LOADING -------- */
-function startLoading() {
+function startLoading(){
   document.getElementById('funnel-ov').classList.add('hidden');
   document.getElementById('loading-ov').classList.remove('hidden');
-  document.getElementById('ld-url').textContent = S.url;
-  const factors = [
-    { label: 'Performance & Ladezeit', key: 'perf' },
-    { label: 'Mobile-Erlebnis', key: 'mobile' },
-    { label: 'CTA-Sichtbarkeit', key: 'cta' },
-    { label: 'Vertrauenssignale', key: 'vertrauen' },
-    { label: 'Angebotsklarheit', key: 'klarheit' },
-    { label: 'Kontaktwege', key: 'kontakt' },
-    { label: 'Conversion-Potenzial', key: 'conversion' }
-  ];
-  const wrap = document.getElementById('bars-wrap');
-  wrap.innerHTML = factors.map((f, i) =>
-    '<div class="bar-row" id="brow-' + i + '">' +
-    '<div class="bar-info"><span class="bar-lbl">' + f.label + '</span><span class="bar-pct" id="bpct-' + i + '">0%</span></div>' +
-    '<div class="bar-track"><div class="bar-fill" id="bfill-' + i + '"></div></div></div>'
-  ).join('');
-
-  const MIN = 5200;
-  const start = Date.now();
-  const tempFactors = { perf:50, mobile:50, cta:40, vertrauen:30, klarheit:Math.round(S.klarheit/5*100), kontakt:30, conversion:40 };
-
-  factors.forEach((f, i) => {
-    const target = tempFactors[f.key];
-    const delay = i * 520;
-    const dur = 1100;
-    setTimeout(() => animateBar(i, target, dur), delay);
-  });
-
-  const checkDone = () => {
-    if (S.psDone && Date.now() - start >= MIN) {
-      const result = calcScore();
-      const realFactors = result.factors;
-      factors.forEach((f, i) => {
-        setTimeout(() => {
-          animateBar(i, realFactors[f.key], 600);
-        }, i * 80);
-      });
-      setTimeout(() => showResults(result), 900);
-    } else {
-      setTimeout(checkDone, 300);
-    }
-  };
-  setTimeout(checkDone, MIN);
+  document.getElementById('ld-url').textContent=S.url;
+  const labels=['Ladegeschwindigkeit wird gemessen\u2026','Darstellung auf dem Handy wird gepr\u00fcft\u2026','Google-Sichtbarkeit wird analysiert\u2026','SEO-Faktoren werden ausgewertet\u2026','Anfragepotenzial wird berechnet\u2026','Gesamtbewertung wird erstellt\u2026'];
+  const wrap=document.getElementById('bars-wrap');
+  wrap.innerHTML=labels.map((lbl,i)=>'<div class="bar-row" id="brow-'+i+'" style="opacity:.2"><div class="bar-info"><span class="bar-lbl">'+lbl+'</span><span class="bar-pct" id="bpct-'+i+'">-</span></div><div class="bar-track"><div class="bar-fill" id="bfill-'+i+'"></div></div></div>').join('');
+  const start=Date.now(),MIN=7200;
+  function runBar(idx,done){
+    if(idx>=labels.length){done();return;}
+    const row=document.getElementById('brow-'+idx),fill=document.getElementById('bfill-'+idx),pct=document.getElementById('bpct-'+idx);
+    row.style.opacity='1';pct.textContent='0%';
+    const dur=700+Math.random()*500;let t0=null;
+    const run=(now)=>{if(!t0)t0=now;const p=Math.min((now-t0)/dur,1),c=Math.round(p*100);fill.style.width=c+'%';fill.style.backgroundImage='linear-gradient(90deg,#1A5C30,#5EC47A)';pct.textContent=c+'%';if(p<1)requestAnimationFrame(run);else{pct.textContent='100%';setTimeout(()=>runBar(idx+1,done),160);}};
+    requestAnimationFrame(run);
+  }
+  runBar(0,()=>{const wait=Math.max(0,MIN-(Date.now()-start));setTimeout(()=>{if(S.psDone)showResults(calcScore());else{const chk=setInterval(()=>{if(S.psDone){clearInterval(chk);showResults(calcScore());}},250);}},wait);});
 }
 
-function animateBar(i, target, dur) {
-  const fillEl = document.getElementById('bfill-' + i);
-  const pctEl = document.getElementById('bpct-' + i);
-  if (!fillEl) return;
-  const startW = parseFloat(fillEl.style.width) || 0;
-  const startT = performance.now();
-  const run = (now) => {
-    const elapsed = now - startT;
-    const prog = Math.min(elapsed / dur, 1);
-    const cur = Math.round(startW + (target - startW) * (1 - Math.pow(1 - prog, 3)));
-    fillEl.style.width = cur + '%';
-    fillEl.style.backgroundImage = getBarGradient(cur);
-    pctEl.textContent = cur + '%';
-    if (prog < 1) requestAnimationFrame(run);
-  };
-  requestAnimationFrame(run);
-}
-
-/* -------- RESULTS -------- */
-function showResults(result) {
+function showResults(result){
   document.getElementById('loading-ov').classList.add('hidden');
   document.getElementById('results-ov').classList.remove('hidden');
-  const { total, factors, leakMin, leakMax } = result;
-  const issues = getIssues(factors);
-  const scoreColor = getScoreColor(total);
-  const circ = 2 * Math.PI * 50;
-  const dashArr = (total / 100 * circ).toFixed(1);
-
-  const factorRows = [
-    ['Performance', factors.perf],
-    ['Mobile', factors.mobile],
-    ['CTA', factors.cta],
-    ['Vertrauen', factors.vertrauen],
-    ['Angebotsklarheit', factors.klarheit],
-    ['Kontaktwege', factors.kontakt],
-  ].map(([lbl, pct]) =>
-    '<div class="fmini-row"><span class="fmini-lbl">' + lbl + '</span>' +
-    '<div class="fmini-track"><div class="fmini-fill" style="width:' + pct + '%;background-image:' + getBarGradient(pct) + '"></div></div>' +
-    '<span class="fmini-pct" style="color:' + getScoreColor(pct) + '">' + pct + '%</span></div>'
-  ).join('');
-
-  const issueHtml = issues.length ? issues.map((iss, idx) =>
-    '<div class="issue-item"><div class="i-rank">' + (idx+1) + '</div>' +
-    '<div><div class="i-t">' + iss.title + '</div><div class="i-d">' + iss.desc + '</div></div></div>'
-  ).join('') : '<div class="issue-item"><div class="i-d" style="color:var(--grn)">Sehr gut aufgestellt – nur noch feintuning nötig.</div></div>';
-
-  const recs = [
-    { icon:'↑', title:'Above-the-Fold neu ausrichten', desc:'Platziere im ersten sichtbaren Bereich einen klaren Nutzen-Satz, einen primären CTA-Button und 2–3 Vertrauenssignale. Das hat den größten Einfluss auf deine Anfragerate.' },
-    { icon:'★', title:'Vertrauenssignale gezielt platzieren', desc:'Füge echte Kundenstimmen, Referenzlogos oder konkrete Ergebniszahlen dort ein, wo Besucher zögern – direkt über dem CTA.' },
-    { icon:'🔒', title:'Vollständige Optimierungsstrategie', desc:'Die dritte Maßnahme – und häufig die wirkungsvollste – besprechen wir im kostenlosen Gespräch individuell für deine Website.' }
-  ];
-
-  const recsHtml = recs.map((r, i) =>
-    '<div class="rec-item' + (i === 2 ? ' rec-blur' : '') + '">' +
-    '<div class="rec-ico">' + r.icon + '</div>' +
-    '<div><div class="rec-t">' + r.title + '</div><div class="rec-d">' + r.desc + '</div></div></div>'
-  ).join('');
-
-  document.getElementById('results-content').innerHTML =
-    '<div class="res-top-logo">GoldenWeb – Website-Leak-Analyzer</div>' +
-
-    '<div class="score-wrap">' +
-    '<svg class="score-svg" viewBox="0 0 120 120">' +
-    '<circle class="sc-track" cx="60" cy="60" r="50"/>' +
-    '<circle class="sc-fill" cx="60" cy="60" r="50" stroke="' + scoreColor + '" stroke-dasharray="0 ' + circ + '" id="sc-fill-el"/>' +
-    '<text class="sc-num" x="60" y="56">' + total + '</text>' +
-    '<text class="sc-lbl" x="60" y="71">von 100</text>' +
-    '</svg></div>' +
-
-    '<div class="leak-big">Deine Website verliert schätzungsweise ' + leakMin + '–' + leakMax + '%</div>' +
-    '<div class="leak-sub">aller potenziellen Anfragen – das sind Interessenten, die deine Seite besuchen,<br>aber ohne Kontakt wieder gehen.</div>' +
-
-    '<div class="r-panel"><div class="r-ph red">⚠ Die größten Conversion-Bremsen</div>' + issueHtml + '</div>' +
-
-    '<div class="r-panel" style="position:relative"><div class="r-ph gold">✦ Sofort umsetzbare Empfehlungen</div>' + recsHtml +
-    '<div style="position:absolute;bottom:0;left:0;right:0;height:90px;background:linear-gradient(to bottom,transparent,var(--bg2));display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font-size:12px;color:var(--tx3)">Die vollständige Analyse im kostenlosen Gespräch →</div></div>' +
-
-    '<div class="r-panel"><div class="r-ph gold">Detailauswertung nach Faktor</div><div style="padding:16px 18px">' + factorRows + '</div></div>' +
-
-    '<div class="cta-panel">' +
-    '<h2 class="cta-h">Lass uns dir zeigen, welche 3 Änderungen<br><span class="gold">bei dir am meisten Anfragen bringen.</span></h2>' +
-    '<p class="cta-p">In einem kostenlosen 30-Minuten-Gespräch analysieren wir gemeinsam deine Website – und du weißt danach genau, wo du ansetzen musst.</p>' +
-    '<div class="email-form-wrap">' +
-    '<input class="e-inp" id="res-name" placeholder="Dein Name" autocomplete="name">' +
-    '<input class="e-inp" id="res-email" type="email" placeholder="deine@email.de" autocomplete="email">' +
-    '<button class="gbtn" onclick="submitEmail()" style="width:100%;padding:14px;font-size:14px">Analyse per Mail erhalten</button>' +
-    '</div>' +
-    '<div style="height:10px"></div>' +
-    '<a href="https://calendly.com/jonas-ernst-goldenweb/30min" target="_blank" class="cal-btn">' +
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
-    'Kostenloses Gespräch buchen →</a>' +
-    '<p class="cta-note">Kein Verkaufsgespräch · 30 Minuten · Konkrete Erkenntnisse für deine Website</p>' +
-    '</div>' +
-
-    '<div style="text-align:center;margin-top:20px"><button onclick="resetAll()" style="background:none;border:.5px solid var(--br);border-radius:8px;padding:8px 18px;color:var(--tx3);font-family:Cairo,sans-serif;font-size:13px;cursor:pointer">Neue Analyse starten</button></div>' +
-
-    '<div style="text-align:center;margin-top:24px;padding-top:20px;border-top:.5px solid var(--br)"><a href="https://goldenweb.info/datenschutz" target="_blank" style="font-size:11px;color:var(--tx3);text-decoration:none;margin:0 10px">Datenschutz</a><a href="https://goldenweb.info/impressum" target="_blank" style="font-size:11px;color:var(--tx3);text-decoration:none;margin:0 10px">Impressum</a></div>';
-
-  // Animate score circle
-  setTimeout(() => {
-    const el = document.getElementById('sc-fill-el');
-    if (el) el.setAttribute('stroke-dasharray', dashArr + ' ' + circ);
-  }, 100);
+  const{total,factors,leakMin,leakMax}=result;
+  const issues=getIssues(factors);
+  const col=getScoreColor(total);
+  const circ=(2*Math.PI*50).toFixed(1),fillD=(total/100*2*Math.PI*50).toFixed(1);
+  const seoAudits=[];
+  if(S.psData?.hasMeta===false)seoAudits.push('Beschreibungstext f\u00fcr Google fehlt');
+  if(S.psData?.hasTitle===false)seoAudits.push('Seitentitel nicht optimiert');
+  if(S.psData?.crawlable===false)seoAudits.push('Seite f\u00fcr Google nicht vollst\u00e4ndig erreichbar');
+  if(S.psData?.hasSchema===false)seoAudits.push('Kein strukturiertes Datenschema vorhanden');
+  if(S.psData?.viewport===false)seoAudits.push('Handy-Darstellung nicht korrekt eingestellt');
+  const seoHtml=seoAudits.length?'<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">'+seoAudits.map(a=>'<div style="font-size:12px;color:var(--tx2);display:flex;gap:7px"><span style="color:var(--red);flex-shrink:0">x</span>'+a+'</div>').join('')+'</div>':'<div style="font-size:12px;color:var(--grn);margin-top:8px">Technische SEO-Grundlagen sind vorhanden</div>';
+  const fRows=[['Ladegeschwindigkeit',factors.ladezeit],['Handy-Darstellung',factors.mobil],['SEO-Score (Google)',factors.seo],['Sichtbarkeit lokal',factors.sichtbarkeit],['Anfragen aktuell',factors.anfragen],['Gesamtpotenzial',factors.potenzial]].map(([lbl,pct])=>{const c=getScoreColor(pct),g=pct>=68?'linear-gradient(90deg,#1A5C30,#5EC47A)':pct>=42?'linear-gradient(90deg,#8B5A10,#E09030)':'linear-gradient(90deg,#7A1A1A,#E05252)';return '<div class="fmini-row"><span class="fmini-lbl">'+lbl+'</span><div class="fmini-track"><div class="fmini-fill" style="width:'+pct+'%;background-image:'+g+'"></div></div><span class="fmini-pct" style="color:'+c+'">'+pct+'%</span></div>';}).join('');
+  const issueHtml=issues.map((iss,idx)=>'<div class="issue-item"><div class="i-rank">'+(idx+1)+'</div><div><div class="i-t">'+iss.title+'</div><div class="i-d">'+iss.desc+'</div></div></div>').join('');
+  const recs=[{icon:'\u2191',title:'Den ersten Eindruck deiner Website \u00fcberarbeiten',desc:'Der wichtigste Bereich ist das, was man sieht ohne zu scrollen. Wenn dort nicht sofort klar ist, was du anbietest und wie man dich erreicht, geht die Mehrheit ohne Reaktion weg.'},{icon:'S',title:'Bei Google besser gefunden werden',desc:'Wer heute einen Handwerker oder Dienstleister sucht, googelt. Mit einer SEO-optimierten Website und einem gepflegten Google Business Profil bist du genau dann sichtbar, wenn jemand aktiv sucht.'},{icon:'?',title:'Die dritte \u2013 und oft st\u00e4rkste \u2013 Ma\u00dfnahme\u2026',desc:'Diese zeigen wir dir im pers\u00f6nlichen Gespr\u00e4ch. Sie h\u00e4ngt von deiner konkreten Situation ab.'}];
+  const recsHtml=recs.map((r,i)=>'<div class="rec-item'+(i===2?' rec-blur':'')+'" ><div class="rec-ico">'+r.icon+'</div><div><div class="rec-t">'+r.title+'</div><div class="rec-d">'+r.desc+'</div></div></div>').join('');
+  document.getElementById('results-content').innerHTML=
+    '<div class="res-top-logo">GoldenWeb &ndash; Website &amp; SEO Analyse</div>'+
+    '<div class="score-wrap"><svg class="score-svg" viewBox="0 0 120 120" style="overflow:visible"><circle class="sc-track" cx="60" cy="60" r="50"/><circle class="sc-fill" cx="60" cy="60" r="50" stroke="'+col+'" stroke-dasharray="0 '+circ+'" id="sc-fill-el" transform="rotate(-90 60 60)"/><text class="sc-num" x="60" y="57">'+total+'</text><text class="sc-lbl" x="60" y="72">von 100</text></svg></div>'+
+    '<div class="leak-big">Gesch&auml;tzter Anfrageverlust: '+leakMin+' &ndash; '+leakMax+' %</div>'+
+    '<div class="leak-sub">Von 100 Besuchern nehmen sch&auml;tzungsweise nur '+(100-leakMax)+'&ndash;'+(100-leakMin)+' Kontakt auf.<br>Der Rest verl&auml;sst deine Seite ohne anzurufen.</div>'+
+    '<div class="r-panel"><div class="r-ph red">Wo deine Website aktuell Anfragen und Sichtbarkeit verliert</div>'+issueHtml+'</div>'+
+    '<div class="r-panel"><div class="r-ph gold">SEO &amp; Google-Sichtbarkeit im Detail</div><div style="padding:14px 18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:13px;color:var(--tx2)">SEO-Score laut Google Lighthouse</span><span style="font-size:18px;font-weight:700;color:'+getScoreColor(factors.seo)+'">'+factors.seo+' / 100</span></div><div style="font-size:12px;color:var(--tx3);margin-bottom:4px">Technische Faktoren:</div>'+seoHtml+'</div></div>'+
+    '<div class="r-panel" style="position:relative"><div class="r-ph gold">Was du konkret tun kannst</div>'+recsHtml+'<div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,var(--bg2));display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font-size:12px;color:var(--tx3)">Die vollst&auml;ndige Auswertung im pers&ouml;nlichen Gespr&auml;ch</div></div>'+
+    '<div class="r-panel"><div class="r-ph gold">Auswertung nach Faktor</div><div style="padding:16px 18px">'+fRows+'</div></div>'+
+    '<div class="cta-panel"><h2 class="cta-h">Wir bauen dir eine <span class="gold">kostenlose Demo</span><br>deiner neuen Website.</h2><p class="cta-p">In einem kurzen 15-Minuten-Gespr&auml;ch zeigen wir dir, wie deine Website aussehen und funktionieren k&ouml;nnte &ndash; fertig gebaut, keine Vorleistung. Wir brauchen daf&uuml;r nur ein paar Informationen von dir.</p>'+
+    '<div id="email-form-section"><div class="email-form-wrap"><input class="e-inp" id="res-name" placeholder="Dein Name" autocomplete="name"><input class="e-inp" id="res-email" type="email" placeholder="deine@email.de" autocomplete="email"><button class="gbtn" onclick="submitEmail()" style="width:100%;padding:14px;font-size:14px">Analyse per Mail erhalten</button></div></div>'+
+    '<div style="height:14px"></div>'+
+    '<a href="https://calendly.com/jonas-ernst-goldenweb/30min" target="_blank" class="cal-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Jetzt unverbindliche Beratung sichern &rarr;</a>'+
+    '<p class="cta-note">Kein Verkaufsgespr&auml;ch &middot; 15 Minuten &middot; Wir zeigen dir deine fertige Demo</p></div>'+
+    '<div style="text-align:center;margin-top:20px"><button onclick="resetAll()" style="background:none;border:.5px solid var(--br);border-radius:8px;padding:8px 18px;color:var(--tx3);font-family:Cairo,sans-serif;font-size:13px;cursor:pointer">Neue Analyse starten</button></div>'+
+    '<div style="text-align:center;margin-top:18px;padding-top:16px;border-top:.5px solid var(--br)"><a href="https://goldenweb.info/datenschutz" target="_blank" style="font-size:11px;color:var(--tx3);text-decoration:none;margin:0 10px">Datenschutz</a><a href="https://goldenweb.info/impressum" target="_blank" style="font-size:11px;color:var(--tx3);text-decoration:none;margin:0 10px">Impressum</a></div>';
+  setTimeout(()=>{const el=document.getElementById('sc-fill-el');if(el)el.setAttribute('stroke-dasharray',fillD+' '+circ);},200);
 }
 
-function submitEmail() {
-  const name = (document.getElementById('res-name')?.value || '').trim();
-  const email = (document.getElementById('res-email')?.value || '').trim();
-  if (!email) { alert('Bitte gib deine E-Mail-Adresse ein.'); return; }
-  // TODO: Ersetze YOUR_FORM_ID mit deiner Formspree-ID (formspree.io)
-  // fetch('https://formspree.io/f/YOUR_FORM_ID', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, email, url: S.url, score: calcScore().total }) });
-  alert('Danke ' + (name || '') + '! Wir schicken dir die Analyse an ' + email + ' zu.');
-  window.open('https://calendly.com/jonas-ernst-goldenweb/30min', '_blank');
+function submitEmail(){
+  const name=(document.getElementById('res-name')?.value||'').trim();
+  const email=(document.getElementById('res-email')?.value||'').trim();
+  if(!email){document.getElementById('res-email').style.borderColor='var(--red)';return;}
+  // TODO: fetch('https://formspree.io/f/YOUR_ID',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,url:S.url,anfragen:S.anfragen,sichtbarkeit:S.sichtbarkeit,alter:S.alter,score:calcScore().total})});
+  document.getElementById('email-form-section').innerHTML='<div style="background:rgba(94,196,122,.1);border:.5px solid rgba(94,196,122,.3);border-radius:10px;padding:14px 18px;font-size:14px;color:var(--grn);text-align:center">Deine Analyse wurde an <strong>'+email+'</strong> geschickt. Du erh&auml;ltst sie in wenigen Minuten.</div>';
 }
 
-function resetAll() {
-  Object.assign(S, { url:'', branche:'', elemente:[], klarheit:0, alter:'', psData:null, psDone:false, step:0 });
-  document.getElementById('results-ov').classList.add('hidden');
-  document.getElementById('loading-ov').classList.add('hidden');
-  document.getElementById('landing').style.display = '';
-  window.scrollTo(0,0);
-}
+function resetAll(){Object.assign(S,{url:'',branche:'',anfragen:'',sichtbarkeit:'',alter:'',psData:null,psDone:false,step:0});document.getElementById('results-ov').classList.add('hidden');document.getElementById('loading-ov').classList.add('hidden');document.getElementById('landing').style.display='';window.scrollTo(0,0);}
 
-function toggleFaq(btn) {
-  const item = btn.closest('.faq-item');
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
+function toggleFaq(btn){const item=btn.closest('.faq-item');const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!isOpen)item.classList.add('open');}
+
 </script>
-</body>
-</html>
