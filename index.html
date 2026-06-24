@@ -1,12 +1,285 @@
-<script>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Website-Leak-Analyzer | GoldenWeb</title>
+<meta name="description" content="Kostenlose Potenzial- und Sichtbarkeitsanalyse deiner Website. Erfahre in 60 Sekunden, wie viele Anfragen du verlierst.">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gl:#E2C990;--gm:#C8A96E;--gd:#A07840;--bg:#0A0A0A;--bg2:#141414;--bg3:#1C1C1C;--bg4:#252525;--br:rgba(200,169,110,.15);--br2:rgba(200,169,110,.30);--tx:#F0EAD8;--tx2:#A89880;--tx3:#5E5040;--red:#E05252;--ora:#E09030;--grn:#5EC47A}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);line-height:1.6}
+.hidden{display:none!important}
+.gold{background:linear-gradient(135deg,var(--gl),var(--gm),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,var(--gl),var(--gd));color:#0A0A0A;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;transition:transform .2s,box-shadow .2s;text-decoration:none}
+.gbtn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(200,169,110,.35)}
+header{position:fixed;top:0;left:0;right:0;z-index:50;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,10,.93);backdrop-filter:blur(12px);border-bottom:.5px solid var(--br)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-name{font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hcta{padding:8px 18px;border:.5px solid var(--br2);border-radius:8px;font-size:13px;font-weight:600;color:var(--gm);background:none;cursor:pointer;font-family:'Cairo',sans-serif;transition:background .15s}
+.hcta:hover{background:rgba(200,169,110,.08)}
+#landing{padding-top:72px}
+.hero{min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-150px;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(200,169,110,.07) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border:.5px solid var(--br2);border-radius:20px;font-size:12px;color:var(--gm);margin-bottom:24px}
+.ldot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{font-size:clamp(30px,5vw,60px);font-weight:800;line-height:1.12;margin-bottom:18px;max-width:800px}
+.hero-sub{font-size:clamp(15px,2vw,19px);color:var(--tx2);max-width:520px;margin:0 auto 40px;line-height:1.65}
+.hero-row{display:flex;gap:10px;max-width:560px;width:100%;margin:0 auto 24px;flex-wrap:wrap;justify-content:center}
+.url-inp{flex:1;min-width:260px;padding:14px 18px;background:var(--bg3);border:.5px solid var(--br2);border-radius:10px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:15px;outline:none;transition:border-color .2s}
+.url-inp:focus{border-color:var(--gm)}
+.url-inp::placeholder{color:var(--tx3)}
+.trust-row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.tbadge{font-size:12px;color:var(--tx3)}
+.sec{padding:80px 24px;max-width:1060px;margin:0 auto}
+.sec-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gm);text-align:center;margin-bottom:10px}
+.sec-h{font-size:clamp(24px,3.5vw,38px);font-weight:700;text-align:center;margin-bottom:14px;line-height:1.2}
+.sec-sub{font-size:15px;color:var(--tx2);text-align:center;max-width:520px;margin:0 auto 48px;line-height:1.65}
+.divider{border:none;border-top:.5px solid var(--br);margin:0 24px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.tcard{background:var(--bg2);border:.5px solid var(--br);border-radius:14px;padding:24px;transition:border-color .2s}
+.tcard:hover{border-color:var(--br2)}
+.stars{color:var(--gm);font-size:13px;letter-spacing:2px;margin-bottom:12px}
+.ttext{font-size:14px;color:var(--tx2);line-height:1.75;margin-bottom:16px}
+.tauthor{display:flex;align-items:center;gap:10px}
+.tavatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gd),var(--gl));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--bg);flex-shrink:0}
+.tname{font-size:14px;font-weight:600}
+.trole{font-size:12px;color:var(--tx3)}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.step-card{background:var(--bg2);border:.5px solid var(--br);border-radius:14px;padding:26px 20px;text-align:center}
+.step-num{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,rgba(226,201,144,.15),rgba(160,120,64,.1));border:.5px solid var(--br2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--gm);margin:0 auto 14px}
+.step-t{font-size:15px;font-weight:700;margin-bottom:7px}
+.step-d{font-size:13px;color:var(--tx2);line-height:1.6}
+.ns-list{max-width:620px;margin:0 auto}
+.ns-item{display:flex;gap:16px;padding:20px 0;border-bottom:.5px solid var(--br)}
+.ns-item:last-child{border-bottom:none}
+.ns-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gl),var(--gd));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--bg);flex-shrink:0;margin-top:2px}
+.ns-h{font-size:15px;font-weight:700;margin-bottom:3px}
+.ns-d{font-size:13px;color:var(--tx2);line-height:1.6}
+.faq-list{max-width:680px;margin:0 auto}
+.faq-item{border:.5px solid var(--br);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.faq-q{width:100%;padding:16px 18px;background:var(--bg2);border:none;color:var(--tx);font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .15s}
+.faq-q:hover{background:var(--bg3)}
+.faq-icon{font-size:20px;color:var(--gm);flex-shrink:0;transition:transform .2s;line-height:1}
+.faq-a{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s;font-size:13px;color:var(--tx2);line-height:1.75}
+.faq-item.open .faq-a{max-height:300px;padding:0 18px 16px}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+footer{padding:28px 40px;border-top:.5px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.flinks{display:flex;gap:18px}
+.flinks a{font-size:12px;color:var(--tx3);text-decoration:none}
+.flinks a:hover{color:var(--tx2)}
+.flogo{font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+/* FUNNEL */
+#funnel-ov{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;overflow-y:auto}
+.f-top{padding:18px 24px;display:flex;align-items:center;gap:12px;border-bottom:.5px solid var(--br);position:sticky;top:0;background:var(--bg);z-index:10}
+.f-back{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:20px;padding:4px;line-height:1;flex-shrink:0}
+.f-back:hover{color:var(--tx)}
+.f-prog-track{flex:1;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.f-prog-fill{height:100%;background:linear-gradient(90deg,var(--gd),var(--gl));border-radius:2px;transition:width .4s ease}
+.f-step-lbl{font-size:12px;color:var(--tx3);white-space:nowrap;flex-shrink:0}
+.f-close{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:22px;line-height:1;padding:4px;flex-shrink:0}
+.f-close:hover{color:var(--tx)}
+.f-body{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px}
+.f-step{max-width:580px;width:100%;animation:sIn .3s ease}
+@keyframes sIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.f-qlbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gm);margin-bottom:8px}
+.f-qh{font-size:clamp(20px,4vw,28px);font-weight:700;margin-bottom:6px;line-height:1.3}
+.f-qs{font-size:14px;color:var(--tx2);margin-bottom:24px;line-height:1.6}
+.opts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
+.opt-c{padding:16px 12px;background:var(--bg2);border:.5px solid var(--br);border-radius:12px;cursor:pointer;text-align:center;font-size:13px;font-weight:500;color:var(--tx2);display:flex;flex-direction:column;align-items:center;gap:7px;transition:border-color .15s,color .15s,background .15s}
+.opt-c:hover{border-color:var(--gm);color:var(--tx);background:var(--bg3)}
+.opt-c.sel{border-color:var(--gm);background:rgba(200,169,110,.1);color:var(--gm)}
+.inp-f{width:100%;padding:13px 16px;background:var(--bg3);border:.5px solid var(--br2);border-radius:10px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:14px;outline:none;transition:border-color .2s;margin-bottom:10px}
+.inp-f:focus{border-color:var(--gm)}
+.inp-f::placeholder{color:var(--tx3)}
+.f-nav{display:flex;gap:10px;align-items:center;margin-top:4px}
+.f-err{font-size:13px;color:var(--red);margin-top:6px}
+/* LOADING */
+#loading-ov{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
+.ld-logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:36px}
+.ld-h{font-size:21px;font-weight:700;text-align:center;margin-bottom:8px}
+.ld-url{font-size:12px;color:var(--gm);margin-bottom:32px;padding:5px 14px;border:.5px solid var(--br2);border-radius:20px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bars-wrap{width:100%;max-width:480px;display:flex;flex-direction:column;gap:13px}
+.bar-row{display:flex;flex-direction:column;gap:5px}
+.bar-info{display:flex;justify-content:space-between;align-items:center}
+.bar-lbl{font-size:12px;color:var(--tx2)}
+.bar-pct{font-size:12px;font-weight:600;color:var(--tx);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+.bar-track{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;width:0%;border-radius:4px}
+.ld-dots{margin-top:28px;font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:4px}
+.dot-anim{display:inline-block;animation:dotP 1.4s infinite}
+.dot-anim:nth-child(2){animation-delay:.2s}
+.dot-anim:nth-child(3){animation-delay:.4s}
+@keyframes dotP{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+/* RESULTS */
+#results-ov{position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto}
+.res-inner{max-width:680px;margin:0 auto;padding:40px 24px 80px}
+.res-top-logo{text-align:center;margin-bottom:28px;font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--gl),var(--gd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:28px}
+.score-svg{width:140px;height:140px}
+.sc-track{fill:none;stroke:var(--bg4);stroke-width:9}
+.sc-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dasharray 1.5s ease,stroke .5s}
+.sc-num{font-family:'Cairo',sans-serif;font-size:28px;font-weight:800;fill:var(--tx);text-anchor:middle;dominant-baseline:central}
+.sc-lbl{font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;fill:var(--tx2);text-anchor:middle}
+.leak-big{font-size:clamp(22px,5vw,36px);font-weight:800;color:var(--red);text-align:center;margin-bottom:4px}
+.leak-sub{font-size:14px;color:var(--tx2);text-align:center;margin-bottom:28px;line-height:1.6}
+.r-panel{background:var(--bg2);border:.5px solid var(--br);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.r-ph{padding:12px 18px;border-bottom:.5px solid var(--br);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.r-ph.red{background:rgba(224,82,82,.07);border-bottom-color:rgba(224,82,82,.2);color:var(--red)}
+.r-ph.gold{background:rgba(200,169,110,.07);border-bottom-color:var(--br2);color:var(--gm)}
+.issue-item{padding:15px 18px;border-bottom:.5px solid var(--br);display:flex;gap:12px;align-items:flex-start}
+.issue-item:last-child{border-bottom:none}
+.i-rank{width:24px;height:24px;border-radius:50%;background:rgba(224,82,82,.12);border:.5px solid rgba(224,82,82,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--red);flex-shrink:0;margin-top:1px}
+.i-t{font-size:14px;font-weight:600;margin-bottom:3px}
+.i-d{font-size:13px;color:var(--tx2);line-height:1.65}
+.rec-item{padding:15px 18px;border-bottom:.5px solid var(--br);display:flex;gap:12px;align-items:flex-start}
+.rec-item:last-child{border-bottom:none}
+.rec-ico{width:24px;height:24px;border-radius:50%;background:rgba(200,169,110,.1);border:.5px solid var(--br2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px;color:var(--gm)}
+.rec-t{font-size:14px;font-weight:600;margin-bottom:3px}
+.rec-d{font-size:13px;color:var(--tx2);line-height:1.65}
+.rec-blur{filter:blur(5px);user-select:none;pointer-events:none}
+.fmini-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.fmini-lbl{font-size:12px;color:var(--tx3);width:140px;flex-shrink:0}
+.fmini-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.fmini-fill{height:100%;border-radius:3px}
+.fmini-pct{font-size:11px;font-weight:600;width:30px;text-align:right}
+.cta-panel{background:linear-gradient(140deg,rgba(226,201,144,.08),rgba(160,120,64,.04));border:1.5px solid rgba(200,169,110,.3);border-radius:16px;padding:30px 24px;text-align:center;margin-bottom:16px}
+.cta-h{font-size:20px;font-weight:700;margin-bottom:10px;line-height:1.3}
+.cta-p{font-size:14px;color:var(--tx2);max-width:420px;margin:0 auto 22px;line-height:1.65}
+.email-form-wrap{display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 14px}
+.e-inp{padding:13px 15px;background:var(--bg3);border:.5px solid var(--br2);border-radius:9px;color:var(--tx);font-family:'Cairo',sans-serif;font-size:13px;outline:none;width:100%}
+.e-inp:focus{border-color:var(--gm)}
+.e-inp::placeholder{color:var(--tx3)}
+.cal-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,var(--gl),var(--gd));color:#0A0A0A;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s;max-width:400px;margin:0 auto}
+.cal-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(200,169,110,.4)}
+.cta-note{font-size:11px;color:var(--tx3);margin-top:10px}
+@media(max-width:640px){header{padding:14px 18px}.hero{padding:60px 20px 50px}.opts-grid{grid-template-columns:1fr 1fr}.hero-row{flex-direction:column}.url-inp{min-width:100%;width:100%}footer{flex-direction:column;align-items:flex-start;padding:24px 20px}}
+</style>
+</head>
+<body>
 
-const S={url:'',branche:'',anfragen:'',sichtbarkeit:'',alter:'',psData:null,psDone:false,step:0};
+<header>
+  <a href="#" class="logo" onclick="closeFunnel();return false;">
+    <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><defs><linearGradient id="hg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E2C990"/><stop offset="50%" stop-color="#C8A96E"/><stop offset="100%" stop-color="#A07840"/></linearGradient></defs><polygon points="18,2 33,11 33,25 18,34 3,25 3,11" stroke="url(#hg)" stroke-width="2" fill="none"/><circle cx="18" cy="18" r="5" fill="url(#hg)"/></svg>
+    <span class="logo-name">GoldenWeb</span>
+  </a>
+  <button class="hcta" onclick="openFunnel()">Jetzt analysieren</button>
+</header>
+
+<div id="landing">
+
+  <section class="hero">
+    <div class="hero-badge"><span class="ldot"></span> Kostenlose Potenzial- und Sichtbarkeitsanalyse deiner Website</div>
+    <h1>Wie viele Anfragen verliert<br><span class="gold">deine Website gerade?</span></h1>
+    <p class="hero-sub">Gib deine URL ein und erfahre in 60 Sekunden, wo deine Website Anfragen verliert und was die 3 gr&ouml;&szlig;ten Bremsen sind.</p>
+    <div class="hero-row">
+      <input class="url-inp" id="hero-url" type="text" placeholder="https://deine-website.de" autocomplete="off" onkeydown="if(event.key==='Enter')startFromHero()">
+      <button class="gbtn" onclick="startFromHero()">Jetzt analysieren &rarr;</button>
+    </div>
+    <div class="trust-row">
+      <span class="tbadge">&#10003; 100% kostenlos</span>
+      <span class="tbadge">&#10003; Ergebnis in &lt; 60 Sek.</span>
+      <span class="tbadge">&#10003; Keine E-Mail n&ouml;tig</span>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section class="sec">
+    <p class="sec-tag">Kundenstimmen</p>
+    <h2 class="sec-h">Was unsere Kunden sagen</h2>
+    <p class="sec-sub">Unternehmen, die verstanden haben, warum ihre Website keine Anfragen gebracht hat und was sich danach ver&auml;ndert hat.</p>
+    <div class="tgrid">
+      <div class="tcard"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="ttext">&bdquo;Wir hatten jahrelang eine Website, aber Anfragen kamen so gut wie keine rein. GoldenWeb hat uns genau gezeigt warum. Heute kommen regelm&auml;&szlig;ig Anfragen direkt &uuml;ber die Seite rein, ohne dass wir irgendwas aktiv tun m&uuml;ssen.&ldquo;</p><div class="tauthor"><div class="tavatar">AB</div><div><div class="tname">Andreas Belitz</div><div class="trole">Elektro Belitz GmbH</div></div></div></div>
+      <div class="tcard"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="ttext">&bdquo;Unser Problem war, dass uns kaum jemand bei Google gefunden hat. Nach der Zusammenarbeit mit GoldenWeb stehen wir f&uuml;r unsere wichtigsten Suchbegriffe auf Seite 1. Die Anfragen kommen seitdem deutlich regelm&auml;&szlig;iger.&ldquo;</p><div class="tauthor"><div class="tavatar">HD</div><div><div class="tname">Holm Draber</div><div class="trole">Colourclean GmbH</div></div></div></div>
+      <div class="tcard"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="ttext">&bdquo;Wir hatten eine veraltete Website und wussten nicht mal wie viele Leute sie besuchen. GoldenWeb hat das komplett ge&auml;ndert. Neue Seite, neue Sichtbarkeit, und zum ersten Mal kommen Bewerbungen auch &uuml;ber die Website rein.&ldquo;</p><div class="tauthor"><div class="tavatar">HC</div><div><div class="tname">Henry Czech</div><div class="trole">I.S.C. Reinigung mit Trockeneis GmbH</div></div></div></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section class="sec">
+    <p class="sec-tag">So funktioniert es</p>
+    <h2 class="sec-h">In 3 Schritten zu deiner Diagnose</h2>
+    <p class="sec-sub">Keine technischen Vorkenntnisse n&ouml;tig. Kein Zugriff auf dein Backend. Nur deine URL und 4 kurze Fragen.</p>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">1</div><div class="step-t">URL eingeben</div><p class="step-d">Gib die Adresse deiner Website ein. Wir analysieren sie automatisch auf Ladezeit, Google-Sichtbarkeit und SEO-Faktoren.</p></div>
+      <div class="step-card"><div class="step-num">2</div><div class="step-t">4 Fragen beantworten</div><p class="step-d">Beantworte 4 kurze Fragen zu deiner Website. Das dauert unter 60 Sekunden und sch&auml;rft die Analyse erheblich.</p></div>
+      <div class="step-card"><div class="step-num">3</div><div class="step-t">Ergebnis erhalten</div><p class="step-d">Du siehst sofort deinen Score, die gr&ouml;&szlig;ten Schwachstellen, den SEO-Check und konkrete Hinweise, was bei dir den meisten Unterschied macht.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:32px"><button class="gbtn" onclick="openFunnel()" style="font-size:15px;padding:15px 32px">Jetzt kostenlos analysieren &rarr;</button></div>
+  </section>
+
+  <hr class="divider">
+
+  <section class="sec">
+    <p class="sec-tag">Die n&auml;chsten Schritte</p>
+    <h2 class="sec-h">Vom ersten Ergebnis zur echten L&ouml;sung</h2>
+    <p class="sec-sub">Was passiert nach der Analyse und wie sieht eine Zusammenarbeit mit GoldenWeb aus.</p>
+    <div class="ns-list">
+      <div class="ns-item"><div class="ns-num">1</div><div><div class="ns-h">Analyse starten</div><p class="ns-d">URL eingeben, 4 kurze Fragen beantworten. Unter 60 Sekunden, du siehst sofort wo deine Website Anfragen verliert und wie gut sie bei Google gefunden wird.</p></div></div>
+      <div class="ns-item"><div class="ns-num">2</div><div><div class="ns-h">Kostenloses Erstgespr&auml;ch buchen</div><p class="ns-d">Du buchst dir 15 Minuten mit uns. Wir zeigen dir konkret, welche 3 &Auml;nderungen bei dir die meisten Anfragen bringen w&uuml;rden &ndash; und wie eine fertige Demo deiner neuen Website aussehen k&ouml;nnte.</p></div></div>
+      <div class="ns-item"><div class="ns-num">3</div><div><div class="ns-h">Ma&szlig;geschneiderte L&ouml;sung</div><p class="ns-d">Wir entwickeln eine Website, die nicht nur gut aussieht, sondern aktiv Anfragen generiert und bei Google gefunden wird.</p></div></div>
+      <div class="ns-item"><div class="ns-num">4</div><div><div class="ns-h">Mehr qualifizierte Anfragen</div><p class="ns-d">Deine neue Website arbeitet f&uuml;r dich &ndash; und bringt regelm&auml;&szlig;ig neue Anfragen, ohne mehr Werbebudget.</p></div></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section class="sec">
+    <p class="sec-tag">H&auml;ufige Fragen</p>
+    <h2 class="sec-h">Was du vielleicht noch wissen willst</h2>
+    <p class="sec-sub">Echte Fragen, ehrliche Antworten.</p>
+    <div class="faq-list">
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span>Ist die Analyse wirklich kostenlos?</span><span class="faq-icon">+</span></button><div class="faq-a">Ja, vollst&auml;ndig. Keine versteckten Kosten, kein Abo, keine Kreditkarte. Du bekommst sofort eine ehrliche Einsch&auml;tzung deiner Website &ndash; ohne Pflicht zu einem Folgegespräch.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span>Woher kommen die Analyseergebnisse?</span><span class="faq-icon">+</span></button><div class="faq-a">Das Tool kombiniert echte technische Messwerte (Ladezeit, Mobile-Performance, SEO-Score via Google PageSpeed Lighthouse) mit deinen Angaben zu Anfragen und Sichtbarkeit. Kein generischer Score &ndash; eine individuelle Einsch&auml;tzung.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span>Braucht ihr Zugriff auf meine Website?</span><span class="faq-icon">+</span></button><div class="faq-a">Nein. Das Tool analysiert deine Website von au&szlig;en &ndash; genau so, wie ein potenzieller Kunde sie sieht. Kein Login, kein Backend-Zugang n&ouml;tig.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span>Ich habe wenig Besucher &ndash; macht die Analyse trotzdem Sinn?</span><span class="faq-icon">+</span></button><div class="faq-a">Gerade dann. Eine Website, die schlecht konvertiert oder bei Google nicht sichtbar ist, verliert den Gro&szlig;teil ihres Potenzials &ndash; egal ob 200 oder 10.000 Besucher im Monat.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span>Was passiert nach der Analyse?</span><span class="faq-icon">+</span></button><div class="faq-a">Du siehst sofort dein Ergebnis und die gr&ouml;&szlig;ten Schwachstellen. Wenn du wissen m&ouml;chtest, welche 3 konkreten &Auml;nderungen bei dir den gr&ouml;&szlig;ten Unterschied machen, kannst du ein kostenloses 15-Minuten-Gespr&auml;ch buchen.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)"><span>Was bietet ihr im Gespr&auml;ch an?</span><span class="faq-icon">+</span></button><div class="faq-a">Wir zeigen dir, wie deine neue Website aussehen und funktionieren k&ouml;nnte &ndash; fertig gebaut als Demo. Kein Standardpitch, sondern eine echte Diagnose mit konkretem n&auml;chsten Schritt.</div></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+  <footer>
+    <div class="flinks"><a href="https://goldenweb.info/datenschutz" target="_blank">Datenschutz</a><a href="https://goldenweb.info/impressum" target="_blank">Impressum</a><a href="https://goldenweb.info" target="_blank">goldenweb.info</a></div>
+    <span class="flogo">GoldenWeb</span>
+  </footer>
+</div>
+
+<div id="funnel-ov" class="hidden">
+  <div class="f-top">
+    <button class="f-back" id="f-back-btn" onclick="funnelBack()">&#8592;</button>
+    <div class="f-prog-track"><div class="f-prog-fill" id="f-prog" style="width:0%"></div></div>
+    <span class="f-step-lbl" id="f-step-lbl">Schritt 1 von 5</span>
+    <button class="f-close" onclick="closeFunnel()">&#10005;</button>
+  </div>
+  <div class="f-body"><div class="f-step" id="f-step-content"></div></div>
+</div>
+
+<div id="loading-ov" class="hidden">
+  <div class="ld-logo">GoldenWeb</div>
+  <h2 class="ld-h">Deine Website wird analysiert&hellip;</h2>
+  <div class="ld-url" id="ld-url"></div>
+  <div class="bars-wrap" id="bars-wrap"></div>
+  <div class="ld-dots">Analyse l&auml;uft <span class="dot-anim">&#9679;</span><span class="dot-anim">&#9679;</span><span class="dot-anim">&#9679;</span></div>
+</div>
+
+<div id="results-ov" class="hidden">
+  <div class="res-inner" id="results-content"></div>
+</div>
+
+<script>
+const S={url:'',anfragen:'',ueberarbeitet:'',qualifiziert:'',ziel:'',psData:null,psDone:false,step:0};
 const STEPS=5;
 
 function fetchPS(url){
   const api='https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url='+encodeURIComponent(url)+'&strategy=mobile';
   const ctrl=new AbortController();
-  setTimeout(()=>ctrl.abort(),22000);
+  setTimeout(()=>ctrl.abort(),30000);
   fetch(api,{signal:ctrl.signal})
     .then(r=>r.json())
     .then(d=>{
@@ -27,132 +300,292 @@ function fetchPS(url){
 
 function calcScore(){
   const perf=S.psData?.perf??0.5,seo=S.psData?.seo??0.5;
-  const perfPts=Math.round(perf*20),seoPts=Math.round(seo*18);
-  const anfrMap={'0':0,'1-5':14,'5-10':28,'10-20':40,'20-50':52,'50+':62};
-  const anfrPts=anfrMap[S.anfragen]??15;
-  const sichtMap={seite1:18,seite2:10,kaum:3,weiss:6};
-  const sichtPts=sichtMap[S.sichtbarkeit]??6;
-  const agePen=S.alter==='alt5'?10:S.alter==='alt3'?4:0;
-  const total=Math.max(5,Math.min(95,perfPts+seoPts+Math.round(anfrPts*.62)+sichtPts-agePen));
+  const perfPts=Math.round(perf*22),seoPts=Math.round(seo*18);
+  const anfrMap={'0':0,'1-5':8,'5-10':18,'10-20':28,'20plus':36,'weiss':10};
+  const anfrPts=anfrMap[S.anfragen]??10;
+  const uebMap={letzte12:12,'1-3':8,'3-5':4,'5plus':0,weiss:6};
+  const uebPts=uebMap[S.ueberarbeitet]??6;
+  const qualMap={ja:10,teilweise:6,'eher-nicht':2,kaum:0};
+  const qualPts=qualMap[S.qualifiziert]??4;
+  const total=Math.max(8,Math.min(94,perfPts+seoPts+anfrPts+uebPts+qualPts));
   const factors={
     ladezeit:Math.round(perf*100),
     mobil:Math.round(perf*100),
     seo:Math.round(seo*100),
-    sichtbarkeit:S.sichtbarkeit==='seite1'?95:S.sichtbarkeit==='seite2'?55:S.sichtbarkeit==='kaum'?15:35,
-    anfragen:Math.min(100,Math.round(anfrPts*1.6)),
+    anfragen:Math.min(100,Math.round(anfrPts*2.7)),
+    aktualitaet:uebMap[S.ueberarbeitet]!==undefined?Math.round(uebPts/12*100):50,
+    qualitaet:Math.min(100,Math.round(qualPts*10)),
     potenzial:total
   };
   let leakMin,leakMax;
-  if(total>=78){leakMin=10;leakMax=28;}
-  else if(total>=62){leakMin=28;leakMax=45;}
-  else if(total>=46){leakMin=45;leakMax=62;}
-  else if(total>=30){leakMin=62;leakMax=76;}
+  if(total>=78){leakMin=8;leakMax=25;}
+  else if(total>=62){leakMin=25;leakMax=42;}
+  else if(total>=46){leakMin=42;leakMax=60;}
+  else if(total>=30){leakMin=60;leakMax=76;}
   else{leakMin=76;leakMax=90;}
   return{total,factors,leakMin,leakMax};
 }
 
 function getIssues(factors){
   const issues=[];
-  if(factors.ladezeit<60)issues.push({title:'Deine Website l\u00e4dt zu langsam',desc:'Viele Interessenten schauen sich deine Website auf dem Handy an. Wenn sie zu lange braucht, klicken die meisten einfach weg \u2013 bevor sie gelesen haben, was du anbietest.'});
-  if(S.anfragen==='0')issues.push({title:'Die Website bringt aktuell keine Anfragen rein',desc:'Deine Seite hat Besucher, aber nichts auf ihr gibt ihnen einen Grund, dich zu kontaktieren. Das ist kein Pech \u2013 das ist ein l\u00f6sbares Problem.'});
-  else if(S.anfragen==='1-5')issues.push({title:'Kaum Anfragen f\u00fcr dein Potenzial',desc:'Bei 1\u20135 Anfragen im Monat geht ein Gro\u00dfteil der Besucher ohne Reaktion. Das passiert, wenn der Weg zur Kontaktaufnahme nicht klar genug ist oder das Vertrauen fehlt.'});
-  if(factors.seo<55)issues.push({title:'Deine Website ist bei Google kaum sichtbar',desc:'Wenn Interessenten bei Google nach deiner Leistung suchen, taucht deine Seite nicht auf \u2013 oder erst weit hinten. Das bedeutet: Neukunden, die aktiv suchen, landen bei der Konkurrenz.'});
-  if(S.sichtbarkeit==='kaum'||S.sichtbarkeit==='weiss')issues.push({title:'Dein Betrieb wird online nicht gut gefunden',desc:'Wer heute einen Handwerker oder Dienstleister sucht, googelt. Wenn du dabei nicht auftauchst, verlierst du Kunden, bevor du \u00fcberhaupt wei\u00dft, dass sie gesucht haben.'});
-  if(S.alter==='alt5')issues.push({title:'Dein Webauftritt wirkt nicht mehr zeitgem\u00e4\u00df',desc:'Eine \u00fcber 5 Jahre alte Website sendet ein unbewusstes Signal: Stillstand. Neue Kunden schauen, ob ein Betrieb modern aufgestellt ist \u2013 bevor sie anrufen.'});
-  else if(S.alter==='alt3')issues.push({title:'Deine Website entspricht nicht mehr dem heutigen Standard',desc:'Was vor 3\u20135 Jahren gut aussah, wirkt heute oft un\u00fcbersichtlich und nicht vertrauensw\u00fcrdig.'});
-  if(!issues.length)issues.push({title:'Noch ungenutztes Potenzial',desc:'Deine Website ist solide aufgestellt \u2013 aber selbst gute Seiten verlieren Anfragen durch kleine Stellschrauben bei Vertrauen, Struktur und Nutzerf\u00fchrung.'});
+  if(factors.ladezeit<60)issues.push({
+    title:'Deine Website ist zu langsam',
+    desc:'Die meisten Menschen schauen sich eine Website heute auf dem Handy an. Wenn sie dort zu lange l\u00e4dt, sind sie weg bevor sie gelesen haben was du anbietest. Das passiert bei dir wahrscheinlich t\u00e4glich.'
+  });
+  if(factors.seo<55)issues.push({
+    title:'Du wirst bei Google kaum gefunden',
+    desc:'Wenn jemand aktiv nach deiner Leistung sucht und du nicht auftauchst, landet der Auftrag beim Wettbewerb. Das ist kein abstraktes Problem, das kostet dich jeden Monat bares Geld.'
+  });
+  if(S.anfragen==='0'||S.anfragen==='weiss')issues.push({
+    title:'Deine Website bringt keine messbaren Anfragen',
+    desc:'Eine Website die keine Anfragen bringt oder bei der du nicht weisst ob sie Anfragen bringt ist kein Marketing. Sie ist eine digitale Visitenkarte die keiner sieht.'
+  });
+  else if(S.anfragen==='1-5')issues.push({
+    title:'Zu wenige Anfragen f\u00fcr dein Potenzial',
+    desc:'1 bis 5 Anfragen im Monat bedeutet: fast alle Besucher gehen ohne Reaktion. Das liegt selten am Angebot. Meistens fehlt ein klarer n\u00e4chster Schritt auf der Seite selbst.'
+  });
+  if(S.qualifiziert==='eher-nicht')issues.push({
+    title:'Die Anfragen passen nicht zu deinem Angebot',
+    desc:'Wenn Anfragen reinkommen die nicht passen, verlierst du Zeit. Das passiert wenn die Website nicht klar genug kommuniziert wer dein idealer Kunde ist und was du konkret anbietest.'
+  });
+  if(S.ueberarbeitet==='5plus')issues.push({
+    title:'Deine Website ist \u00fcber 5 Jahre alt',
+    desc:'Google bewertet \u00e4ltere Websites schlechter. Interessenten auch. Ein veralteter Webauftritt sendet unbewusst das Signal: dieser Betrieb hat sich nicht weiterentwickelt.'
+  });
+  else if(S.ueberarbeitet==='3-5')issues.push({
+    title:'Deine Website entspricht nicht mehr dem heutigen Stand',
+    desc:'In 3 bis 5 Jahren hat sich im Web sehr viel ver\u00e4ndert. Was damals gut aussah wirkt heute auf vielen Ger\u00e4ten unstrukturiert und nicht mehr vertrauensw\u00fcrdig.'
+  });
+  if(!issues.length)issues.push({
+    title:'Noch ungenutztes Potenzial',
+    desc:'Deine Website steht gut da. Aber selbst starke Seiten verlieren regelm\u00e4\u00dfig Anfragen durch kleine Details bei Struktur, Vertrauen und Nutzerf\u00fchrung die man von innen nicht sieht.'
+  });
   return issues.slice(0,3);
+}
+
+function getRecs(ziel){
+  const kundenRecs=[
+    {icon:'\u2191',title:'Besucher zu Anfragen machen',desc:'Der entscheidende Schritt: ein Besucher der deine Seite besucht muss in unter 10 Sekunden verstehen was du anbietest und wie er dich kontaktiert. Das ist bei den meisten Websites nicht der Fall.'},
+    {icon:'S',title:'Bei Google sichtbar sein wenn jemand sucht',desc:'Wer heute nach deiner Leistung sucht googelt das. Mit einer sauber optimierten Seite erscheinst du genau dann wenn Interesse da ist und nicht erst wenn du selbst aktiv wirst.'},
+    {icon:'?',title:'Die wirksamste Ma\u00dfnahme f\u00fcr dein Unternehmen',desc:'Welche Stellschraube bei dir den gr\u00f6\u00dften Unterschied macht besprechen wir im pers\u00f6nlichen Gespr\u00e4ch. Daf\u00fcr brauchen wir ein paar Informationen von dir.'}
+  ];
+  const mitarbeiterRecs=[
+    {icon:'\u2191',title:'Bewerber auf deine Website bringen',desc:'Wer sich bei dir bewirbt schaut sich vorher deine Website an. Wenn dort keine Stellenangebote sichtbar sind oder die Seite nicht \u00fcberzeugt ist der Bewerber in 30 Sekunden wieder weg.'},
+    {icon:'S',title:'Als Arbeitgeber bei Google gefunden werden',desc:'Menschen suchen heute aktiv nach Arbeitgebern in ihrer Region. Wenn du bei Suchen wie deiner Branche und Ort nicht auftauchst verpasst du Bewerbungen t\u00e4glich.'},
+    {icon:'?',title:'Deine Recruiting Strategie f\u00fcr deine Situation',desc:'Was genau du brauchst um mehr qualifizierte Bewerbungen zu bekommen kl\u00e4ren wir gemeinsam. Das h\u00e4ngt von deiner Branche deiner Region und deinem aktuellen Auftritt ab.'}
+  ];
+  return ziel==='mitarbeiter'?mitarbeiterRecs:kundenRecs;
 }
 
 function getScoreColor(s){return s>=68?'#5EC47A':s>=42?'#E09030':'#E05252';}
 
+/* ── FUNNEL ── */
 function openFunnel(preUrl){S.step=0;if(preUrl)S.url=preUrl;document.getElementById('funnel-ov').classList.remove('hidden');document.getElementById('landing').style.display='none';renderStep();}
 function closeFunnel(){document.getElementById('funnel-ov').classList.add('hidden');document.getElementById('landing').style.display='';}
 function startFromHero(){const v=document.getElementById('hero-url').value.trim();if(v)S.url=v.startsWith('http')?v:'https://'+v;openFunnel(S.url);}
 function funnelBack(){if(S.step>0){S.step--;renderStep();}else closeFunnel();}
 function updateProgress(){const pct=Math.round((S.step/STEPS)*100);document.getElementById('f-prog').style.width=pct+'%';document.getElementById('f-step-lbl').textContent='Schritt '+(S.step+1)+' von '+STEPS;document.getElementById('f-back-btn').style.opacity=S.step===0?'0.4':'1';}
-function renderStep(){updateProgress();const c=document.getElementById('f-step-content');if(S.step===0)c.innerHTML=stepUrl();else if(S.step===1)c.innerHTML=stepBranche();else if(S.step===2)c.innerHTML=stepAnfragen();else if(S.step===3)c.innerHTML=stepSichtbarkeit();else if(S.step===4)c.innerHTML=stepAlter();c.style.animation='none';c.offsetHeight;c.style.animation='';}
+function renderStep(){updateProgress();const c=document.getElementById('f-step-content');if(S.step===0)c.innerHTML=stepUrl();else if(S.step===1)c.innerHTML=stepAnfragen();else if(S.step===2)c.innerHTML=stepUeberarbeitet();else if(S.step===3)c.innerHTML=stepQualifiziert();else if(S.step===4)c.innerHTML=stepZiel();c.style.animation='none';c.offsetHeight;c.style.animation='';}
 
-function stepUrl(){return '<p class="f-qlbl">Schritt 1 von 5</p><h2 class="f-qh">Welche Website soll analysiert werden?</h2><p class="f-qs">Einfach die Adresse eingeben \u2013 wir schauen uns technische Leistung und Google-Sichtbarkeit an.</p><input class="inp-f" id="url-inp" type="text" placeholder="https://deine-website.de" value="'+S.url+'" autocomplete="off" onkeydown="if(event.key===\'Enter\')submitUrl()"><p class="f-err hidden" id="url-err">Bitte gib eine g\u00fcltige Webadresse ein.</p><div class="f-nav"><button class="gbtn" onclick="submitUrl()" style="width:100%">Weiter \u2192</button></div>';}
+function stepUrl(){
+  return '<p class="f-qlbl">Schritt 1 von 5</p>'+
+    '<h2 class="f-qh">Welche Website soll analysiert werden?</h2>'+
+    '<p class="f-qs">Gib einfach die Adresse ein. Wir schauen uns im Hintergrund Ladezeit, mobile Darstellung und Google-Sichtbarkeit an.</p>'+
+    '<input class="inp-f" id="url-inp" type="text" placeholder="https://deine-website.de" value="'+S.url+'" autocomplete="off" onkeydown="if(event.key===\'Enter\')submitUrl()">'+
+    '<p class="f-err hidden" id="url-err">Bitte gib eine g\u00fcltige Webadresse ein.</p>'+
+    '<div class="f-nav"><button class="gbtn" onclick="submitUrl()" style="width:100%">Weiter \u2192</button></div>';
+}
 function submitUrl(){let v=document.getElementById('url-inp').value.trim();if(!v){document.getElementById('url-err').classList.remove('hidden');return;}if(!v.startsWith('http'))v='https://'+v;S.url=v;document.getElementById('url-err').classList.add('hidden');fetchPS(v);S.step=1;renderStep();}
 
-function stepBranche(){
-  const opts=[['Handwerk & Bau','handwerk'],['Gesundheit & Pflege','gesundheit'],['Beratung & Coaching','beratung'],['IT & Digitales','it'],['Gastronomie','gastro'],['Sonstiges','sonstiges']];
-  return '<p class="f-qlbl">Schritt 2 von 5</p><h2 class="f-qh">In welchem Bereich bist du t\u00e4tig?</h2><p class="f-qs">Damit k\u00f6nnen wir die Ergebnisse besser einordnen.</p><div class="opts-grid">'+opts.map(([lbl,val])=>'<div class="opt-c'+(S.branche===val?' sel':'')+'" onclick="selectBranche(\''+val+'\')"><span>'+lbl+'</span></div>').join('')+'</div>';
-}
-function selectBranche(v){S.branche=v;S.step=2;renderStep();}
-
 function stepAnfragen(){
-  const opts=[['0','Keine','Ich bekomme keine Anfragen \u00fcber die Website'],['1-5','1 \u2013 5','Vereinzelt, aber selten'],['5-10','5 \u2013 10','Manchmal, ausbauf\u00e4hig'],['10-20','10 \u2013 20','Regelm\u00e4\u00dfig'],['20-50','20 \u2013 50','Gut, aber mehr w\u00e4re besser'],['50+','50+','Sehr viele, l\u00e4uft gut']];
-  return '<p class="f-qlbl">Schritt 3 von 5</p><h2 class="f-qh">Wie viele Anfragen kommen monatlich \u00fcber deine Website?</h2><p class="f-qs">Gemeint sind Anrufe, Nachrichten oder Kontaktformulare direkt \u00fcber deine Website.</p><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+opts.map(([val,num,desc])=>'<div class="opt-c'+(S.anfragen===val?' sel':'')+'" onclick="selectAnfragen(\''+val+'\')" style="text-align:left;flex-direction:row;gap:12px;padding:14px 16px"><span style="font-size:17px;font-weight:800;min-width:44px;color:var(--gm)">'+num+'</span><span style="font-size:12px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
+  const opts=[
+    ['0','Keine','Noch keine einzige'],
+    ['1-5','1 bis 5','Vereinzelt, aber selten'],
+    ['5-10','5 bis 10','Ab und zu, ausbauf\u00e4hig'],
+    ['10-20','10 bis 20','Regelm\u00e4\u00dfig'],
+    ['20plus','Mehr als 20','Sehr viele, l\u00e4uft gut'],
+    ['weiss','Wei\u00df ich nicht','Ich habe das nie gemessen']
+  ];
+  return '<p class="f-qlbl">Schritt 2 von 5</p>'+
+    '<h2 class="f-qh">Wie viele Anfragen kommen aktuell monatlich \u00fcber deine Website rein?</h2>'+
+    '<p class="f-qs">Gemeint sind Anrufe, E-Mails oder Kontaktformulare die direkt \u00fcber die Website entstehen.</p>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+
+    opts.map(([val,num,desc])=>'<div class="opt-c'+(S.anfragen===val?' sel':'')+'" onclick="sel(\'anfragen\',\''+val+'\',1)" style="text-align:left;flex-direction:row;gap:14px;padding:14px 16px"><span style="font-size:15px;font-weight:800;min-width:80px;color:var(--gm)">'+num+'</span><span style="font-size:13px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
 }
-function selectAnfragen(v){S.anfragen=v;S.step=3;renderStep();}
 
-function stepSichtbarkeit(){
-  const opts=[['seite1','Ja, auf Seite 1','Ich bin gut zu finden'],['seite2','Auf Seite 2\u20133','Man findet mich, aber selten'],['kaum','Kaum sichtbar','Ich tauche kaum auf'],['weiss','Wei\u00df ich nicht','Ich habe das nie gepr\u00fcft']];
-  return '<p class="f-qlbl">Schritt 4 von 5</p><h2 class="f-qh">Wenn jemand bei Google nach deiner Leistung sucht \u2013 erscheinst du?</h2><p class="f-qs">Z.B. \u201eElektriker M\u00fcnchen\u201c oder \u201eSteuerberater Hamburg\u201c \u2013 wie sichtbar bist du dabei?</p><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+opts.map(([val,num,desc])=>'<div class="opt-c'+(S.sichtbarkeit===val?' sel':'')+'" onclick="selectSichtbarkeit(\''+val+'\')" style="text-align:left;flex-direction:row;gap:12px;padding:14px 16px"><span style="font-size:14px;font-weight:700;min-width:110px;color:var(--gm)">'+num+'</span><span style="font-size:12px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
+function stepUeberarbeitet(){
+  const opts=[
+    ['letzte12','In den letzten 12 Monaten','Relativ frisch'],
+    ['1-3','Vor 1 bis 3 Jahren','Etwas \u00e4lter'],
+    ['3-5','Vor 3 bis 5 Jahren','Schon l\u00e4nger her'],
+    ['5plus','Vor mehr als 5 Jahren','Sehr veraltet'],
+    ['weiss','Wei\u00df ich nicht','Habe ich nie verfolgt']
+  ];
+  return '<p class="f-qlbl">Schritt 3 von 5</p>'+
+    '<h2 class="f-qh">Wann wurde deine Website das letzte Mal grundlegend \u00fcberarbeitet?</h2>'+
+    '<p class="f-qs">Gemeint ist eine richtige Neugestaltung, kein einzelner Textblock der ver\u00e4ndert wurde.</p>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+
+    opts.map(([val,num,desc])=>'<div class="opt-c'+(S.ueberarbeitet===val?' sel':'')+'" onclick="sel(\'ueberarbeitet\',\''+val+'\',2)" style="text-align:left;flex-direction:row;gap:14px;padding:14px 16px"><span style="font-size:14px;font-weight:700;min-width:140px;color:var(--gm)">'+num+'</span><span style="font-size:13px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
 }
-function selectSichtbarkeit(v){S.sichtbarkeit=v;S.step=4;renderStep();}
 
-function stepAlter(){
-  const opts=[['Weniger als 1 Jahr','jung'],['1 \u2013 3 Jahre','mittel'],['3 \u2013 5 Jahre','alt3'],['\u00c4lter als 5 Jahre','alt5']];
-  return '<p class="f-qlbl">Schritt 5 von 5</p><h2 class="f-qh">Wie alt ist deine aktuelle Website?</h2><p class="f-qs">\u00c4ltere Websites entsprechen oft nicht mehr dem heutigen Standard \u2013 das beeinflusst Ladezeit, Darstellung und Google-Ranking.</p><div class="opts-grid">'+opts.map(([lbl,val])=>'<div class="opt-c'+(S.alter===val?' sel':'')+'" onclick="selectAlter(\''+val+'\')" style="padding:18px 14px"><span style="font-size:15px;font-weight:600">'+lbl+'</span></div>').join('')+'</div>';
+function stepQualifiziert(){
+  const opts=[
+    ['ja','Ja meistens','Die Anfragen passen gut zu uns'],
+    ['teilweise','Teilweise','Manche passen, manche nicht'],
+    ['eher-nicht','Eher nicht','Wir bekommen oft unpassende Anfragen'],
+    ['kaum','Ich bekomme kaum Anfragen','Zu wenige um das zu beurteilen']
+  ];
+  return '<p class="f-qlbl">Schritt 4 von 5</p>'+
+    '<h2 class="f-qh">Sind die Anfragen die \u00fcber deine Website reinkommen qualifiziert?</h2>'+
+    '<p class="f-qs">Das hei\u00dft: Passen die Leute die sich melden zu dem was du anbietest?</p>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+
+    opts.map(([val,num,desc])=>'<div class="opt-c'+(S.qualifiziert===val?' sel':'')+'" onclick="sel(\'qualifiziert\',\''+val+'\',3)" style="text-align:left;flex-direction:row;gap:14px;padding:14px 16px"><span style="font-size:14px;font-weight:700;min-width:140px;color:var(--gm)">'+num+'</span><span style="font-size:13px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
 }
-function selectAlter(v){S.alter=v;startLoading();}
 
+function stepZiel(){
+  const opts=[
+    ['kunden','Mehr Kunden gewinnen','Auftragsbuch f\u00fcllen'],
+    ['mitarbeiter','Mehr Mitarbeiter finden','Offene Stellen besetzen'],
+    ['beides','Beides','Beides ist aktuell Thema'],
+    ['keins','Aktuell weder noch','Wir sind gut aufgestellt']
+  ];
+  return '<p class="f-qlbl">Schritt 5 von 5</p>'+
+    '<h2 class="f-qh">Was w\u00e4re f\u00fcr dich gerade am wichtigsten?</h2>'+
+    '<p class="f-qs">Das hilft uns die Ergebnisse auf das auszurichten was f\u00fcr dich wirklich relevant ist.</p>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'+
+    opts.map(([val,num,desc])=>'<div class="opt-c'+(S.ziel===val?' sel':'')+'" onclick="sel(\'ziel\',\''+val+'\',4)" style="text-align:left;flex-direction:row;gap:14px;padding:14px 16px"><span style="font-size:15px;font-weight:800;min-width:180px;color:var(--gm)">'+num+'</span><span style="font-size:13px;color:inherit">'+desc+'</span></div>').join('')+'</div>';
+}
+
+function sel(field,val,nextStep){
+  S[field]=val;
+  if(nextStep<STEPS){S.step=nextStep;renderStep();}
+  else startLoading();
+}
+
+/* ── LOADING: 5 seconds per bar ── */
 function startLoading(){
   document.getElementById('funnel-ov').classList.add('hidden');
   document.getElementById('loading-ov').classList.remove('hidden');
   document.getElementById('ld-url').textContent=S.url;
-  const labels=['Ladegeschwindigkeit wird gemessen\u2026','Darstellung auf dem Handy wird gepr\u00fcft\u2026','Google-Sichtbarkeit wird analysiert\u2026','SEO-Faktoren werden ausgewertet\u2026','Anfragepotenzial wird berechnet\u2026','Gesamtbewertung wird erstellt\u2026'];
+  const labels=[
+    'Ladezeit deiner Website wird gemessen',
+    'Mobile Darstellung wird geprueft',
+    'Google Sichtbarkeit wird analysiert',
+    'SEO Faktoren werden ausgewertet',
+    'Anfragepotenzial wird berechnet'
+  ];
   const wrap=document.getElementById('bars-wrap');
-  wrap.innerHTML=labels.map((lbl,i)=>'<div class="bar-row" id="brow-'+i+'" style="opacity:.2"><div class="bar-info"><span class="bar-lbl">'+lbl+'</span><span class="bar-pct" id="bpct-'+i+'">-</span></div><div class="bar-track"><div class="bar-fill" id="bfill-'+i+'"></div></div></div>').join('');
-  const start=Date.now(),MIN=7200;
+  wrap.innerHTML=labels.map((lbl,i)=>'<div class="bar-row" id="brow-'+i+'" style="opacity:.15"><div class="bar-info"><span class="bar-lbl">'+lbl+'</span><span class="bar-pct" id="bpct-'+i+'">-</span></div><div class="bar-track"><div class="bar-fill" id="bfill-'+i+'"></div></div></div>').join('');
+  const start=Date.now();
+  const MIN=labels.length*5200+800;
   function runBar(idx,done){
     if(idx>=labels.length){done();return;}
-    const row=document.getElementById('brow-'+idx),fill=document.getElementById('bfill-'+idx),pct=document.getElementById('bpct-'+idx);
+    const row=document.getElementById('brow-'+idx);
+    const fill=document.getElementById('bfill-'+idx);
+    const pct=document.getElementById('bpct-'+idx);
     row.style.opacity='1';pct.textContent='0%';
-    const dur=700+Math.random()*500;let t0=null;
-    const run=(now)=>{if(!t0)t0=now;const p=Math.min((now-t0)/dur,1),c=Math.round(p*100);fill.style.width=c+'%';fill.style.backgroundImage='linear-gradient(90deg,#1A5C30,#5EC47A)';pct.textContent=c+'%';if(p<1)requestAnimationFrame(run);else{pct.textContent='100%';setTimeout(()=>runBar(idx+1,done),160);}};
+    const dur=4600+Math.random()*800;
+    let t0=null;
+    const run=(now)=>{
+      if(!t0)t0=now;
+      const p=Math.min((now-t0)/dur,1);
+      const c=Math.round(p*100);
+      fill.style.width=c+'%';
+      fill.style.backgroundImage='linear-gradient(90deg,#1A5C30,#5EC47A)';
+      pct.textContent=c+'%';
+      if(p<1)requestAnimationFrame(run);
+      else{
+        pct.textContent='100%';
+        setTimeout(()=>runBar(idx+1,done),220);
+      }
+    };
     requestAnimationFrame(run);
   }
-  runBar(0,()=>{const wait=Math.max(0,MIN-(Date.now()-start));setTimeout(()=>{if(S.psDone)showResults(calcScore());else{const chk=setInterval(()=>{if(S.psDone){clearInterval(chk);showResults(calcScore());}},250);}},wait);});
+  runBar(0,()=>{
+    const wait=Math.max(0,MIN-(Date.now()-start));
+    setTimeout(()=>{
+      if(S.psDone)showResults(calcScore());
+      else{const chk=setInterval(()=>{if(S.psDone){clearInterval(chk);showResults(calcScore());}},300);}
+    },wait);
+  });
 }
 
+/* ── RESULTS ── */
 function showResults(result){
   document.getElementById('loading-ov').classList.add('hidden');
   document.getElementById('results-ov').classList.remove('hidden');
   const{total,factors,leakMin,leakMax}=result;
   const issues=getIssues(factors);
+  const recs=getRecs(S.ziel);
   const col=getScoreColor(total);
-  const circ=(2*Math.PI*50).toFixed(1),fillD=(total/100*2*Math.PI*50).toFixed(1);
+  const circ=(2*Math.PI*50).toFixed(1);
+  const fillD=(total/100*2*Math.PI*50).toFixed(1);
+
   const seoAudits=[];
   if(S.psData?.hasMeta===false)seoAudits.push('Beschreibungstext f\u00fcr Google fehlt');
   if(S.psData?.hasTitle===false)seoAudits.push('Seitentitel nicht optimiert');
   if(S.psData?.crawlable===false)seoAudits.push('Seite f\u00fcr Google nicht vollst\u00e4ndig erreichbar');
   if(S.psData?.hasSchema===false)seoAudits.push('Kein strukturiertes Datenschema vorhanden');
-  if(S.psData?.viewport===false)seoAudits.push('Handy-Darstellung nicht korrekt eingestellt');
-  const seoHtml=seoAudits.length?'<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">'+seoAudits.map(a=>'<div style="font-size:12px;color:var(--tx2);display:flex;gap:7px"><span style="color:var(--red);flex-shrink:0">x</span>'+a+'</div>').join('')+'</div>':'<div style="font-size:12px;color:var(--grn);margin-top:8px">Technische SEO-Grundlagen sind vorhanden</div>';
-  const fRows=[['Ladegeschwindigkeit',factors.ladezeit],['Handy-Darstellung',factors.mobil],['SEO-Score (Google)',factors.seo],['Sichtbarkeit lokal',factors.sichtbarkeit],['Anfragen aktuell',factors.anfragen],['Gesamtpotenzial',factors.potenzial]].map(([lbl,pct])=>{const c=getScoreColor(pct),g=pct>=68?'linear-gradient(90deg,#1A5C30,#5EC47A)':pct>=42?'linear-gradient(90deg,#8B5A10,#E09030)':'linear-gradient(90deg,#7A1A1A,#E05252)';return '<div class="fmini-row"><span class="fmini-lbl">'+lbl+'</span><div class="fmini-track"><div class="fmini-fill" style="width:'+pct+'%;background-image:'+g+'"></div></div><span class="fmini-pct" style="color:'+c+'">'+pct+'%</span></div>';}).join('');
+  if(S.psData?.viewport===false)seoAudits.push('Mobile Darstellung nicht korrekt eingestellt');
+  const seoHtml=seoAudits.length
+    ?'<div style="display:flex;flex-direction:column;gap:7px;margin-top:10px">'+seoAudits.map(a=>'<div style="font-size:12px;color:var(--tx2);display:flex;gap:7px"><span style="color:var(--red);flex-shrink:0">&#10007;</span>'+a+'</div>').join('')+'</div>'
+    :'<div style="font-size:12px;color:var(--grn);margin-top:8px">&#10003; Technische Grundlagen sind in Ordnung</div>';
+
+  const fRows=[
+    ['Ladegeschwindigkeit',factors.ladezeit],
+    ['Mobile Darstellung',factors.mobil],
+    ['SEO Score',factors.seo],
+    ['Anfragen aktuell',factors.anfragen],
+    ['Website Aktualit\u00e4t',factors.aktualitaet],
+    ['Anfragen Qualit\u00e4t',factors.qualitaet]
+  ].map(([lbl,pct])=>{
+    const c=getScoreColor(pct);
+    const g=pct>=68?'linear-gradient(90deg,#1A5C30,#5EC47A)':pct>=42?'linear-gradient(90deg,#8B5A10,#E09030)':'linear-gradient(90deg,#7A1A1A,#E05252)';
+    return '<div class="fmini-row"><span class="fmini-lbl">'+lbl+'</span><div class="fmini-track"><div class="fmini-fill" style="width:'+pct+'%;background-image:'+g+'"></div></div><span class="fmini-pct" style="color:'+c+'">'+pct+'%</span></div>';
+  }).join('');
+
   const issueHtml=issues.map((iss,idx)=>'<div class="issue-item"><div class="i-rank">'+(idx+1)+'</div><div><div class="i-t">'+iss.title+'</div><div class="i-d">'+iss.desc+'</div></div></div>').join('');
-  const recs=[{icon:'\u2191',title:'Den ersten Eindruck deiner Website \u00fcberarbeiten',desc:'Der wichtigste Bereich ist das, was man sieht ohne zu scrollen. Wenn dort nicht sofort klar ist, was du anbietest und wie man dich erreicht, geht die Mehrheit ohne Reaktion weg.'},{icon:'S',title:'Bei Google besser gefunden werden',desc:'Wer heute einen Handwerker oder Dienstleister sucht, googelt. Mit einer SEO-optimierten Website und einem gepflegten Google Business Profil bist du genau dann sichtbar, wenn jemand aktiv sucht.'},{icon:'?',title:'Die dritte \u2013 und oft st\u00e4rkste \u2013 Ma\u00dfnahme\u2026',desc:'Diese zeigen wir dir im pers\u00f6nlichen Gespr\u00e4ch. Sie h\u00e4ngt von deiner konkreten Situation ab.'}];
   const recsHtml=recs.map((r,i)=>'<div class="rec-item'+(i===2?' rec-blur':'')+'" ><div class="rec-ico">'+r.icon+'</div><div><div class="rec-t">'+r.title+'</div><div class="rec-d">'+r.desc+'</div></div></div>').join('');
+
+  const zielLabel=S.ziel==='mitarbeiter'?'Mehr Mitarbeiter finden':S.ziel==='beides'?'Mehr Kunden und Mitarbeiter':S.ziel==='keins'?'Allgemeine Website Optimierung':'Mehr Kunden gewinnen';
+
   document.getElementById('results-content').innerHTML=
     '<div class="res-top-logo">GoldenWeb &ndash; Website &amp; SEO Analyse</div>'+
-    '<div class="score-wrap"><svg class="score-svg" viewBox="0 0 120 120" style="overflow:visible"><circle class="sc-track" cx="60" cy="60" r="50"/><circle class="sc-fill" cx="60" cy="60" r="50" stroke="'+col+'" stroke-dasharray="0 '+circ+'" id="sc-fill-el" transform="rotate(-90 60 60)"/><text class="sc-num" x="60" y="57">'+total+'</text><text class="sc-lbl" x="60" y="72">von 100</text></svg></div>'+
-    '<div class="leak-big">Gesch&auml;tzter Anfrageverlust: '+leakMin+' &ndash; '+leakMax+' %</div>'+
-    '<div class="leak-sub">Von 100 Besuchern nehmen sch&auml;tzungsweise nur '+(100-leakMax)+'&ndash;'+(100-leakMin)+' Kontakt auf.<br>Der Rest verl&auml;sst deine Seite ohne anzurufen.</div>'+
-    '<div class="r-panel"><div class="r-ph red">Wo deine Website aktuell Anfragen und Sichtbarkeit verliert</div>'+issueHtml+'</div>'+
-    '<div class="r-panel"><div class="r-ph gold">SEO &amp; Google-Sichtbarkeit im Detail</div><div style="padding:14px 18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:13px;color:var(--tx2)">SEO-Score laut Google Lighthouse</span><span style="font-size:18px;font-weight:700;color:'+getScoreColor(factors.seo)+'">'+factors.seo+' / 100</span></div><div style="font-size:12px;color:var(--tx3);margin-bottom:4px">Technische Faktoren:</div>'+seoHtml+'</div></div>'+
-    '<div class="r-panel" style="position:relative"><div class="r-ph gold">Was du konkret tun kannst</div>'+recsHtml+'<div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,var(--bg2));display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font-size:12px;color:var(--tx3)">Die vollst&auml;ndige Auswertung im pers&ouml;nlichen Gespr&auml;ch</div></div>'+
+    '<div style="text-align:center;margin-bottom:8px;font-size:12px;color:var(--tx3)">Analysiert: <span style="color:var(--gm)">'+S.url+'</span></div>'+
+    '<div style="text-align:center;margin-bottom:20px"><span style="font-size:12px;padding:4px 12px;border:.5px solid var(--br2);border-radius:20px;color:var(--tx3)">Ziel: '+zielLabel+'</span></div>'+
+
+    '<div class="score-wrap"><svg class="score-svg" viewBox="0 0 120 120" style="overflow:visible"><circle class="sc-track" cx="60" cy="60" r="50"/><circle class="sc-fill" cx="60" cy="60" r="50" stroke="'+col+'" stroke-dasharray="0 '+circ+'" id="sc-fill-el" transform="rotate(-90 60 60)"/><text class="sc-num" x="60" y="54">'+total+'</text><text class="sc-lbl" x="60" y="75">von 100</text></svg></div>'+
+
+    '<div class="leak-big">Anfrageverlust: ca. '+leakMin+' bis '+leakMax+' Prozent</div>'+
+    '<div class="leak-sub">Von 100 Besuchern nehmen sch\u00e4tzungsweise nur '+(100-leakMax)+' bis '+(100-leakMin)+' wirklich Kontakt auf.<br>Der Rest verlässt deine Seite ohne etwas zu tun.</div>'+
+
+    '<div class="r-panel"><div class="r-ph red">Wo deine Website aktuell Anfragen verliert</div>'+issueHtml+'</div>'+
+
+    '<div class="r-panel"><div class="r-ph gold">SEO und Google-Sichtbarkeit im Detail</div>'+
+    '<div style="padding:14px 18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:13px;color:var(--tx2)">Google Lighthouse SEO Score</span><span style="font-size:20px;font-weight:700;color:'+getScoreColor(factors.seo)+'">'+factors.seo+' von 100</span></div>'+seoHtml+'</div></div>'+
+
+    '<div class="r-panel" style="position:relative"><div class="r-ph gold">Was du konkret tun kannst</div>'+recsHtml+
+    '<div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,var(--bg2));display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font-size:12px;color:var(--tx3)">Die dritte Ma\u00dfnahme besprechen wir gemeinsam</div></div>'+
+
     '<div class="r-panel"><div class="r-ph gold">Auswertung nach Faktor</div><div style="padding:16px 18px">'+fRows+'</div></div>'+
-    '<div class="cta-panel"><h2 class="cta-h">Wir bauen dir eine <span class="gold">kostenlose Demo</span><br>deiner neuen Website.</h2><p class="cta-p">In einem kurzen 15-Minuten-Gespr&auml;ch zeigen wir dir, wie deine Website aussehen und funktionieren k&ouml;nnte &ndash; fertig gebaut, keine Vorleistung. Wir brauchen daf&uuml;r nur ein paar Informationen von dir.</p>'+
-    '<div id="email-form-section"><div class="email-form-wrap"><input class="e-inp" id="res-name" placeholder="Dein Name" autocomplete="name"><input class="e-inp" id="res-email" type="email" placeholder="deine@email.de" autocomplete="email"><button class="gbtn" onclick="submitEmail()" style="width:100%;padding:14px;font-size:14px">Analyse per Mail erhalten</button></div></div>'+
+
+    '<div class="cta-panel">'+
+    '<h2 class="cta-h">Wir bauen dir eine <span class="gold">kostenlose Demo</span><br>deiner neuen Website.</h2>'+
+    '<p class="cta-p">In einem 15-Minuten-Gespr\u00e4ch zeigen wir dir wie deine Website aussehen und funktionieren k\u00f6nnte. Fertig gebaut, keine Vorleistung. Wir brauchen daf\u00fcr nur ein paar Informationen von dir.</p>'+
+    '<div id="email-form-section"><div class="email-form-wrap">'+
+    '<input class="e-inp" id="res-name" placeholder="Dein Name" autocomplete="name">'+
+    '<input class="e-inp" id="res-email" type="email" placeholder="deine@email.de" autocomplete="email">'+
+    '<button class="gbtn" onclick="submitEmail()" style="width:100%;padding:14px;font-size:14px">Analyse per Mail erhalten</button>'+
+    '</div></div>'+
     '<div style="height:14px"></div>'+
-    '<a href="https://calendly.com/jonas-ernst-goldenweb/30min" target="_blank" class="cal-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Jetzt unverbindliche Beratung sichern &rarr;</a>'+
-    '<p class="cta-note">Kein Verkaufsgespr&auml;ch &middot; 15 Minuten &middot; Wir zeigen dir deine fertige Demo</p></div>'+
+    '<a href="https://calendly.com/jonas-ernst-goldenweb/30min" target="_blank" class="cal-btn">'+
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+
+    'Jetzt unverbindliche Beratung sichern &#8594;</a>'+
+    '<p class="cta-note">Kein Verkaufsgespr\u00e4ch &middot; 15 Minuten &middot; Wir zeigen dir deine fertige Demo</p>'+
+    '</div>'+
     '<div style="text-align:center;margin-top:20px"><button onclick="resetAll()" style="background:none;border:.5px solid var(--br);border-radius:8px;padding:8px 18px;color:var(--tx3);font-family:Cairo,sans-serif;font-size:13px;cursor:pointer">Neue Analyse starten</button></div>'+
     '<div style="text-align:center;margin-top:18px;padding-top:16px;border-top:.5px solid var(--br)"><a href="https://goldenweb.info/datenschutz" target="_blank" style="font-size:11px;color:var(--tx3);text-decoration:none;margin:0 10px">Datenschutz</a><a href="https://goldenweb.info/impressum" target="_blank" style="font-size:11px;color:var(--tx3);text-decoration:none;margin:0 10px">Impressum</a></div>';
+
   setTimeout(()=>{const el=document.getElementById('sc-fill-el');if(el)el.setAttribute('stroke-dasharray',fillD+' '+circ);},200);
 }
 
@@ -160,12 +593,23 @@ function submitEmail(){
   const name=(document.getElementById('res-name')?.value||'').trim();
   const email=(document.getElementById('res-email')?.value||'').trim();
   if(!email){document.getElementById('res-email').style.borderColor='var(--red)';return;}
-  // TODO: fetch('https://formspree.io/f/YOUR_ID',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,url:S.url,anfragen:S.anfragen,sichtbarkeit:S.sichtbarkeit,alter:S.alter,score:calcScore().total})});
   document.getElementById('email-form-section').innerHTML='<div style="background:rgba(94,196,122,.1);border:.5px solid rgba(94,196,122,.3);border-radius:10px;padding:14px 18px;font-size:14px;color:var(--grn);text-align:center">Deine Analyse wurde an <strong>'+email+'</strong> geschickt. Du erh&auml;ltst sie in wenigen Minuten.</div>';
 }
 
-function resetAll(){Object.assign(S,{url:'',branche:'',anfragen:'',sichtbarkeit:'',alter:'',psData:null,psDone:false,step:0});document.getElementById('results-ov').classList.add('hidden');document.getElementById('loading-ov').classList.add('hidden');document.getElementById('landing').style.display='';window.scrollTo(0,0);}
+function resetAll(){
+  Object.assign(S,{url:'',anfragen:'',ueberarbeitet:'',qualifiziert:'',ziel:'',psData:null,psDone:false,step:0});
+  document.getElementById('results-ov').classList.add('hidden');
+  document.getElementById('loading-ov').classList.add('hidden');
+  document.getElementById('landing').style.display='';
+  window.scrollTo(0,0);
+}
 
-function toggleFaq(btn){const item=btn.closest('.faq-item');const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!isOpen)item.classList.add('open');}
-
+function toggleFaq(btn){
+  const item=btn.closest('.faq-item');
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+  if(!isOpen)item.classList.add('open');
+}
 </script>
+</body>
+</html>
